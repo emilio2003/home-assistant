@@ -3,12 +3,12 @@
 Two template sensors that unify multiple F1 sources into clear, UI friendly states.
 
 ## What’s included
-- [**F1 Session State**](./scripts/f1/f1_session_state)  
+- [**F1 Session State**](./f1_session_state)  
   Normalizes track and session flags into one readable state:
   - `CHEQUERED`, `RED`, `Virtual Safety Car`, `SAFETY CAR`, `YELLOW`, `GREEN`, `UNKNOWN`
   - Attributes expose raw values and booleans for quick theming
 
-- [**F1 Sessions**](./scripts/f1/f1_sessions)
+- [**F1 Sessions**](./f1_sessions)
   Progress aware, current vs next session, countdowns, local times, and per session status.
   - State shows the next session with a human readable countdown
   - Attributes include `progress`, `espn_prog`, `current_session_name`, `next_session_name`, `*_seconds_left`, `*_local_start`, `weekend_type`, and per session `*_status`
