@@ -1,5 +1,3 @@
-# 🎛️ Popup Spool Assignment for AMS Slots
-
 # 🧵 AMS Spool Management for Home Assistant + Spoolman
 
 This collection of scripts integrates **Bambu Lab AMS trays** with **Spoolman** inside Home Assistant.  
