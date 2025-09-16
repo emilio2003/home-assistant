@@ -9,7 +9,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 
 ## 📜 Scripts Included
 
-### 1. 🎛️ Popup Spools (./popup_spools)
+### 1. 🎛️ Popup Spools
 - Opens a **Browser Mod popup** to assign spools to AMS slots interactively.  
 - Features:
   - 4 slot buttons (tap = assign picked spool, hold = clear slot).  
@@ -18,7 +18,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 - Uses `input_number.tmp_slot_*` helpers to store temporary slot selections.  
 - Starts selection mode with `input_boolean.awaiting_slot_selection`.
 
-### 2. 📦 Apply Temporary Slots (`config/scripts/apply_tmp_slots.yaml`)
+### 2. 📦 Apply Temporary Slots
 - Confirms the spool assignments made in the popup.  
 - Copies values from:
   - `input_number.tmp_slot_1_id` → `input_number.spool_slot_1_id`  
@@ -27,7 +27,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 - Closes the popup with **Browser Mod**.  
 - Mode set to `restart` so running it resets cleanly.
 
-### 3. 🎯 Update Spool Weights (`config/scripts/update_spool_weights.yaml`)
+### 3. 🎯 Update Spool Weights
 - Updates Spoolman’s spool usage after a print finishes.  
 - Reads `sensor.a1_print_weight` attributes for AMS 1 Tray 1–4.  
 - Extracts used grams (`12.3 g` → `12.3`).  
