@@ -1,0 +1,57 @@
+sequence:
+  - variables:
+      e: sensor.a1_print_weight
+      used_g1: >-
+        {{ (state_attr(e,'AMS 1 Tray
+        1')|string|regex_replace('[^0-9\.]','')|float(0)) }}
+      used_g2: >-
+        {{ (state_attr(e,'AMS 1 Tray
+        2')|string|regex_replace('[^0-9\.]','')|float(0)) }}
+      used_g3: >-
+        {{ (state_attr(e,'AMS 1 Tray
+        3')|string|regex_replace('[^0-9\.]','')|float(0)) }}
+      used_g4: >-
+        {{ (state_attr(e,'AMS 1 Tray
+        4')|string|regex_replace('[^0-9\.]','')|float(0)) }}
+      id1: "{{ states('input_number.spool_slot_1_id')|int(0) }}"
+      id2: "{{ states('input_number.spool_slot_2_id')|int(0) }}"
+      id3: "{{ states('input_number.spool_slot_3_id')|int(0) }}"
+      id4: "{{ states('input_number.spool_slot_4_id')|int(0) }}"
+  - repeat:
+      for_each:
+        - 1
+        - 2
+        - 3
+        - 4
+      sequence:
+        - variables:
+            t: "{{ repeat.item }}"
+            sid: "{{ {1:id1,2:id2,3:id3,4:id4}[t] }}"
+            used_g: "{{ {1:used_g1,2:used_g2,3:used_g3,4:used_g4}[t] }}"
+            
+        # for logging purposes
+        - action: notify."your device_id here"
+          metadata: {}
+          data:
+            message: Slot {{t}} is Spool {{sid}} and used {{used_g}} grams.
+            title: Spoolman Usage
+          enabled: true
+          
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ sid>0 and used_g>0 }}"
+              sequence:
+                - data:
+                    id: "{{ sid }}"
+                    used_weight: >-
+                      {{ (state_attr('sensor.spoolman_spool_' ~
+                      sid,'used_weight')|float(0) + used_g) | round(2) }}
+                    last_used: "{{ now().utcnow().isoformat() }}Z"
+                  action: spoolman.patch_spool
+                  enabled: true
+alias: Update Spool Weights Spoolman
+description: >-
+  Updates the remaining weight for each spool based on printed material. This
+  script iterates through the AMS slots, identifies the spool ID, and calculates
+  the new remaining weight by subtracting the used filament weight.
