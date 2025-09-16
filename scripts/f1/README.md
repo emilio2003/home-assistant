@@ -13,6 +13,8 @@ Two template sensors that unify multiple F1 sources into clear, UI friendly stat
   - State shows the next session with a human readable countdown
   - Attributes include `progress`, `espn_prog`, `current_session_name`, `next_session_name`, `*_seconds_left`, `*_local_start`, `weekend_type`, and per session `*_status`
 
+---
+
 ## Requirements
 - Home Assistant Template integration enabled
 - F1 sensors already available in your setup:
@@ -25,6 +27,8 @@ Two template sensors that unify multiple F1 sources into clear, UI friendly stat
   - Optional: `sensor.f1_last_race_results` for winner text
 
 > If your entity names differ, update them in the YAML.
+
+---
 
 ## Entities created
 
@@ -56,6 +60,8 @@ weekend_type (Race week, Sprint week, No race this week)
 Per session: fp1|fp2|fp3|sprint_quali|sprint|quali|race
 each with *_seconds_left, *_local_start, *_status
 where status is In Progress, Starting, Scheduled Later, Ended, or Not Scheduled
+
+---
 
 ## Notes
 
