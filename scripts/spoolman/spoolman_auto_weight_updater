@@ -192,6 +192,6 @@ sequence:
                             return Number(id)||0;
                           ]]]
       browser_id:
-        - f8a20030fd0725f6cab239e2eda83bfb
+        - "your browser id here"
 alias: Popup Spools
 description: ""
