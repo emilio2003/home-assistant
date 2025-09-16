@@ -16,7 +16,6 @@ Automations for **Bambu Lab AMS + Spoolman** spool management
 - [Popup Spools](./scripts/spoolman/popup_spools) – Browser popup to assign spools to AMS slots.  
 - [Apply Temporary Slots](./scripts/spoolman/apply_tmp_slots) – Confirms spool assignments.  
 - [Update Spool Weights](./scripts/spoolman/update_spool_weights) – Updates Spoolman usage after a print.  
-- [Spoolman README](./scripts/spoolman/README.md) – Full documentation for the above workflow.
 
 ### 3) [F1 Session Status](./scripts/f1)
 
