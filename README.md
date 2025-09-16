@@ -12,7 +12,7 @@ MIT License – see [LICENSE](LICENSE) for details.
 - **Start Car Climate Control** (`scripts/climate_control`)  
   Automatically adjusts your Hyundai Elantra climate system based on weather (temperature, humidity, fog, snow, day/night, etc.).
   
-### Spoolman (Bambu Lab AMS)(./scripts/spoolman)
+### [Spoolman (Bambu Lab AMS)](./scripts/spoolman)
 Automations for **Bambu Lab AMS + Spoolman** spool management
 
 - [Popup Spools](./scripts/spoolman/popup_spools) – Browser popup to assign spools to AMS slots.  
