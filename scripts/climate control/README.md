@@ -1,9 +1,9 @@
-# 🚗 Smart Car Climate Control Script
+# Smart Car Climate Control Script
 
 This script automatically adjusts your car’s climate control based on live weather conditions.  
 It is designed for Hyundai / Kia vehicles with the Kia UVO / Hyundai Bluelink integration in Home Assistant.
 
-## 🌡️ What It Does
+##  What It Does
 - Reads outdoor conditions (temperature, humidex, dew point, humidity, UV, cloud cover, precipitation, visibility, wind, fog risk, day/night).  
 - Calculates **optimal settings** for:
   - Cabin temperature (17–27 °C)
@@ -17,7 +17,7 @@ It is designed for Hyundai / Kia vehicles with the Kia UVO / Hyundai Bluelink in
 - Differentiates **day vs night** (less aggressive cooling at night, stronger defrost in fog).  
 - Sends a persistent notification with chosen settings before starting climate.  
 
-## 🛠️ Requirements
+##  Requirements
 - [PirateWeather](https://github.com/Pirate-Weather/pirate-weather-ha) – Weather data  
 - [Environment Canada](https://www.home-assistant.io/integrations/environment_canada) – Humidex (Montreal) 
 - [Sun integration](https://www.home-assistant.io/integrations/sun/) – Day/night detection  
