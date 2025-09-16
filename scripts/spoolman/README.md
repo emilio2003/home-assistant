@@ -1,13 +1,13 @@
-# 🧵 AMS Spool Management for Home Assistant + Spoolman
+# AMS Spool Management for Home Assistant + Spoolman
 
 This collection of scripts integrates **Bambu Lab AMS trays** with **Spoolman** inside Home Assistant.  
 It provides an end-to-end workflow for assigning spools to slots, confirming assignments, and updating filament usage automatically after prints.
 
 ---
 
-## 📜 Scripts Included
+## Scripts Included
 
-### 1. 🎛️ Popup Spools
+### 1. Popup Spools
 - Opens a **Browser Mod popup** to assign spools to AMS slots interactively.  
 - Features:
   - 4 slot buttons (tap = assign picked spool, hold = clear slot).  
@@ -16,7 +16,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 - Uses `input_number.tmp_slot_*` helpers to store temporary slot selections.  
 - Starts selection mode with `input_boolean.awaiting_slot_selection`.
 
-### 2. 📦 Apply Temporary Slots
+### 2. Apply Temporary Slots
 - Confirms the spool assignments made in the popup.  
 - Copies values from:
   - `input_number.tmp_slot_1_id` → `input_number.spool_slot_1_id`  
@@ -25,7 +25,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 - Closes the popup with **Browser Mod**.  
 - Mode set to `restart` so running it resets cleanly.
 
-### 3. 🎯 Update Spool Weights
+### 3. Update Spool Weights
 - Updates Spoolman’s spool usage after a print finishes.  
 - Reads `sensor.a1_print_weight` attributes for AMS 1 Tray 1–4.  
 - Extracts used grams (`12.3 g` → `12.3`).  
@@ -38,7 +38,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 
 ---
 
-## 🛠️ Requirements
+##  Requirements
 
 - **Home Assistant** (core)  
 - **[Spoolman](https://github.com/Donkie/Spoolman)** integration (`spoolman.patch_spool`)  
@@ -54,7 +54,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 
 ---
 
-## ▶️ Workflow
+##  Workflow
 
 1. **Assign Spools**  
    - Run `script.popup_spools`.  
@@ -72,7 +72,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 
 ---
 
-## 📝 Notes
+## Notes
 - Replace `notify....` with your own notifier entity.  
 - `browser_id` can be changed or removed if you want popups to appear on all devices.  
 - The scripts are modular: you can run `Update Spool Weights` independently.  
@@ -80,5 +80,5 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 
 ---
 
-## 📜 License
+## License
 MIT License – see [LICENSE](../LICENSE).
