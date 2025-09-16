@@ -75,7 +75,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 ---
 
 ## 📝 Notes
-- Replace `notify.mobile_app_emilios_16_pro` with your own mobile notifier entity.  
+- Replace `notify....` with your own notifier entity.  
 - `browser_id` can be changed or removed if you want popups to appear on all devices.  
 - The scripts are modular: you can run `Update Spool Weights` independently.  
 - Regex in the update script ensures weights like `"12.3 g"` are converted to numbers.
