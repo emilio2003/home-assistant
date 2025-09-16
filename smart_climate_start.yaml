@@ -1,0 +1,215 @@
+sequence:
+  - variables:
+      t: "{{ states('sensor.pirateweather_temperature') | float(21) }}"
+      fl: "{{ states('sensor.montreal_humidex') | float(t) }}"
+      dp: "{{ states('sensor.pirateweather_dew_point') | float(18) }}"
+      hum: "{{ states('sensor.pirateweather_humidity') | float(50) }}"
+      uv: "{{ states('sensor.pirateweather_uv_index') | float(0) }}"
+      cloud: "{{ states('sensor.pirateweather_cloud_coverage') | float(20) }}"
+      precip_type: >
+        {{ states('sensor.pirateweather_precip') | default('none') | string |
+        lower }}
+      precip_int: "{{ states('sensor.pirateweather_precip_intensity') | float(0) }}"
+      vis_km: "{{ states('sensor.pirateweather_visibility') | float(20) }}"
+      wind_speed: "{{ states('sensor.pirateweather_wind_speed') | float(0) }}"
+      pressure: "{{ states('sensor.pirateweather_pressure') | float(1013) }}"
+      is_day: "{{ is_state('sun.sun','above_horizon') }}"
+      wind_kmh: >
+        {% set unit =
+        state_attr('sensor.pirateweather_wind_speed','unit_of_measurement') |
+        default('km/h') %} {% set val =
+        states('sensor.pirateweather_wind_speed') | float(0) %} {{ (val * 3.6)
+        if unit in ['m/s','mps'] else val }}
+      fog_status: "{{ states('sensor.fog_status') | default('No Fog') }}"
+      fog_risk: "{{ fog_status == 'Likely Fog' }}"
+      dew_gap: "{{ (t - dp) if (t is number and dp is number) else 99 }}"
+      snowing: |
+        {{ precip_type in ['snow','sleet','hail','snowy','snowy-rainy'] }}
+      raining: >
+        {{ (precip_type in ['rain','drizzle']) or (precip_int|float(0) > 0 and
+        not (precip_type in ['snow','sleet','hail'])) }}
+      icy: "{{ t|float(99) <= -1 }}"
+      sun_strong: >
+        {{ (uv|float(0) >= 6 and cloud|float(100) <= 35) or (cloud|float(100) <=
+        15) }}
+      very_hot: "{{ fl|float(0) >= 30 }}"
+      hot: "{{ fl|float(0) >= 25 and fl|float(0) < 30 }}"
+      warm: "{{ fl|float(0) >= 18 and fl|float(0) < 25 }}"
+      cool: "{{ fl|float(0) >= 10 and fl|float(0) < 18 }}"
+      cold: "{{ fl|float(0) >= -10 and fl|float(0) < 10 }}"
+      very_cold: "{{ fl|float(0) < -10 }}"
+    alias: Basic weather conditions and normalization
+  - variables:
+      set_temp: 21
+      set_duration: 6
+      set_defrost: false
+      set_heating: 0
+      set_flseat: 0
+      set_frseat: 0
+      set_climate: true
+    alias: Base Climate Control
+  - alias: Cold Weather
+    choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ very_cold }}"
+        sequence:
+          - variables:
+              set_temp: 27
+              set_duration: 10
+              set_defrost: true
+              set_heating: 4
+              set_flseat: 8
+              set_frseat: 6
+        alias: Very Cold
+      - conditions:
+          - condition: template
+            value_template: "{{ cold }}"
+        sequence:
+          - variables:
+              set_temp: 26
+              set_duration: "{{ 10 if (snowing or raining or fog_risk or icy) else 8 }}"
+              set_defrost: "{{ snowing or fog_risk or icy }}"
+              set_heating: "{{ 4 if (snowing or icy or wind_kmh|float(0) >= 25) else 3 }}"
+              set_flseat: "{{ 7 if set_heating in [3,4] else 6 }}"
+              set_frseat: 0
+        alias: Cold
+      - conditions:
+          - condition: template
+            value_template: "{{ cool }}"
+        sequence:
+          - variables:
+              set_temp: 24
+              set_duration: "{{ 8 if (raining or fog_risk) else 6 }}"
+              set_defrost: "{{ fog_risk or raining }}"
+              set_heating: "{{ 3 if (t|float(99) <= 8) else 2 if raining else 0 }}"
+              set_flseat: "{{ 6 if set_heating in [2,3,4] else 0 }}"
+              set_frseat: 0
+        alias: Cool
+  - alias: Warm Weather
+    choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ warm }}"
+        sequence:
+          - variables:
+              set_temp: "{{ 18 if sun_strong else 19 }}"
+              set_duration: 8
+              set_defrost: false
+              set_heating: 0
+              set_flseat: 0
+              set_frseat: 0
+        alias: Warm
+      - conditions:
+          - condition: template
+            value_template: "{{ hot }}"
+        sequence:
+          - variables:
+              set_temp: 18
+              set_duration: "{{ 10 if sun_strong else 8 }}"
+              set_defrost: false
+              set_heating: 0
+              set_flseat: 0
+              set_frseat: 0
+        alias: Hot
+      - conditions:
+          - condition: template
+            value_template: "{{ very_hot }}"
+        sequence:
+          - variables:
+              set_temp: "{{ 17 if sun_strong else 18 }}"
+              set_duration: 10
+              set_defrost: false
+              set_heating: 0
+              set_flseat: 0
+              set_frseat: 0
+        alias: Very Hot
+  - variables:
+      set_defrost: "{{ true if (snowing or icy) else set_defrost }}"
+      set_duration: "{{ 10 if (snowing or icy) else set_duration }}"
+      set_heating: "{{ 4 if (snowing or icy) else set_heating }}"
+    alias: Snowy and Icy Overrides
+  - variables:
+      set_temp: >
+        {% set st = set_temp | int(21) %} {% if is_day and sun_strong and
+        fl|float(0) >= 20 %}
+          {% set adj = st - 1 %}
+        {% elif not is_day and fl|float(0) >= 26 %}
+          {% set adj = st + 1 %}
+        {% else %}
+          {% set adj = st %}
+        {% endif %} {% if adj < 17 %}17{% elif adj > 27 %}27{% else %}{{ adj
+        }}{% endif %}
+      set_duration: >
+        {% set sd = set_duration | int(6) %} {% if is_day and sun_strong and
+        fl|float(0) >= 20 %}
+          {% set adj = sd + 1 %}
+        {% elif not is_day and fl|float(0) >= 26 %}
+          {% set adj = sd - 1 %}
+        {% elif not is_day and fog_risk %}
+          {% set adj = sd + 2 %}
+        {% else %}
+          {% set adj = sd %}
+        {% endif %} {% if adj < 1 %}1{% elif adj > 10 %}10{% else %}{{ adj }}{%
+        endif %}
+      set_flseat: |
+        {% set s = set_flseat | int(0) %} {% if not is_day and (cold or cool) %}
+          {% if s == 8 %}7{% elif s == 7 %}6{% else %}{{ s }}{% endif %}
+        {% else %}{{ s }}{% endif %}
+      set_defrost: >
+        {% if not is_day and fog_risk %}true{% else %}{{ set_defrost }}{% endif
+        %}
+    alias: Day and Night Adjustments
+  - variables:
+      set_temp: >
+        {% set st = set_temp | int(21) %} {% if st < 17 %}17{% elif st > 27
+        %}27{% else %}{{ st }}{% endif %}
+      set_duration: >
+        {% set sd = set_duration | int(6) %} {% if sd < 1 %}1{% elif sd > 10
+        %}10{% else %}{{ sd }}{% endif %}
+      set_flseat: >
+        {% set s = set_flseat | int(0) %} {% if s in [0,6,7,8] %}{{ s }}{% else
+        %}0{% endif %}
+      set_frseat: >
+        {% set s = set_frseat | int(0) %} {% if s in [0,6,7,8] %}{{ s }}{% else
+        %}0{% endif %}
+      set_heating: >
+        {% set h = set_heating | int(0) %} {% if h in [0,2,3,4] %}{{ h }}{% else
+        %}0{% endif %}
+    alias: Final Modifications and Limit Clamps
+  - data:
+      title: Car Climate Smart
+      message: >
+        Day={{ is_day }} SunStrong={{ sun_strong }} Fog={{ fog_status }}
+
+        T={{ t }}°C FL={{ fl }}°C RH={{ hum }}% UV={{ uv }} Cloud={{ cloud }}%
+
+        Precip={{ precip_type }} I={{ precip_int }} Vis={{ vis_km }} km Wind={{
+        wind_kmh }} km/h
+
+        -> temp={{ set_temp }}°C dur={{ set_duration }}m defrost={{ set_defrost
+        }}
+           heating={{ set_heating }} flseat={{ set_flseat }} frseat={{ set_frseat }}
+    action: persistent_notification.create
+    alias: Persistent Notification for Logging
+
+# Change Climate Start for you specific vehicle
+  - alias: Elantra Climate Start
+    data:
+      climate: "{{ set_climate }}"
+      duration: "{{ set_duration }}"
+      temperature: "{{ set_temp }}"
+      defrost: "{{ set_defrost }}"
+      heating: "{{ set_heating }}"
+      flseat: "{{ set_flseat }}"
+      frseat: "{{ set_frseat }}"
+      device_id: "Input your vehicle device id here"
+    action: kia_uvo.start_climate
+    enabled: true
+
+alias: Start Car Climate Control
+description: >-
+  Sets the vehicle climate control based on current weather conditions,
+  including temperature, humidity, wind, cloud coverage, and fog predictions. It
+  adjusts heating, defrost, and seat temperatures for optimal comfort and
+  visibility.
