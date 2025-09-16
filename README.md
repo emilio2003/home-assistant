@@ -12,7 +12,8 @@ MIT License – see [LICENSE](LICENSE) for details.
 ---
 ## Scripts in This Repository
 ### 1) [Car Automation](./scripts/climate_control)
-  Automatically adjusts your Hyundai Elantra climate system based on weather (temperature, humidity, fog, snow, day/night, etc.).
+  Automatically adjusts your car climate system based on weather (temperature, humidity, cloud coverage, fog, snow, day/night, etc.).
+  #### Note: make sure you use your vehicle's start climate setup.
   
 ### 2) [Spoolman (Bambu Lab AMS)](./scripts/spoolman)
 Automations for **Bambu Lab AMS + Spoolman** spool management
