@@ -1,6 +1,6 @@
 # 🎛️ Popup Spool Assignment for AMS Slots
 
-This script creates a **browser popup** in Home Assistant that lets you interactively assign filament spools to AMS (Automatic Material System) slots using **Spoolman** data.  
+This script creates a **browser popup** in Home Assistant that lets you interactively assign filament spools to bambu lab AMS slots using **Spoolman** data.
 It provides a visual interface with four slot buttons, a picked spool selector, and a dynamic list of available spools.
 
 ---
