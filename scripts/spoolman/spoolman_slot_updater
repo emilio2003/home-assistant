@@ -158,6 +158,7 @@ sequence:
                   action: call-service
                   service: script.turn_on
                   target:
+# your script id here for "applying tmp slots to ams"
                     entity_id: script.1757699810474
           - type: custom:auto-entities
             card:
