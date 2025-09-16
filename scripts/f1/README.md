@@ -33,32 +33,32 @@ Two template sensors that unify multiple F1 sources into clear, UI friendly stat
 ## Entities created
 
 Main sensor 1:
-'sensor.f1_session_state'
-state: 'CHEQUERED | RED | Virtual Safety Car | SAFETY CAR | YELLOW | GREEN | UNKNOWN'
+`sensor.f1_session_state`
+state: `CHEQUERED | RED | Virtual Safety Car | SAFETY CAR | YELLOW | GREEN | UNKNOWN`
 
 attributes:
-'track_status', 'safety_car'
+`track_status`, `safety_car`
 
-'is_chequered', 'is_red', 'is_vsc', 'is_safety_car', 'is_yellow', 'is_green'
+`is_chequered`, `is_red`, 'is_vsc', 'is_safety_car', 'is_yellow', 'is_green'
 
 Main sensor 2:
-'sensor.f1_sessions'
+`sensor.f1_sessions`
 
 state: friendly next session countdown, for example:
-'Qualifying in 1h 23m'
+`Qualifying in 1h 23m`
 
 key attributes:
 
-'progress', 'espn_prog', 'progress_full'
+`progress', espn_prog, progress_full`
 
-'current_session_name', 'current_session_local_start'
+`current_session_name, current_session_local_start`
 
-'next_session_name', 'next_session_seconds', 'next_session_local_start'
+`next_session_name, next_session_seconds, next_session_local_start`
 
-'weekend_type' (Race week, Sprint week, No race this week)
+`weekend_type` (Race week, Sprint week, No race this week)
 
-Per session: 'fp1|fp2|fp3|sprint_quali|sprint|quali|race'
-each with '*_seconds_left', '*_local_start', '*_status'
+Per session: `fp1|fp2|fp3|sprint_quali|sprint|quali|race`
+each with `*_seconds_left, *_local_start, *_status`
 where status is In Progress, Starting, Scheduled Later, Ended, or Not Scheduled for easy automations
 
 ---
