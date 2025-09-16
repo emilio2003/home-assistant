@@ -7,7 +7,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 
 ## Scripts Included
 
-### 1. Popup Spools
+### 1. [Popup Spools](./popup_spools)
 - Opens a **Browser Mod popup** to assign spools to AMS slots interactively.  
 - Features:
   - 4 slot buttons (tap = assign picked spool, hold = clear slot).  
