@@ -8,8 +8,7 @@ MIT License – see [LICENSE](LICENSE) for details.
 
 ---
 ## Scripts in This Repository
-### Car Automation
-- **Start Car Climate Control** (`scripts/climate_control`)  
+### [Car Automation](./scripts/climate control)
   Automatically adjusts your Hyundai Elantra climate system based on weather (temperature, humidity, fog, snow, day/night, etc.).
   
 ### [Spoolman (Bambu Lab AMS)](./scripts/spoolman)
