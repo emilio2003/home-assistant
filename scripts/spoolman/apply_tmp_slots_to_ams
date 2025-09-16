@@ -1,0 +1,31 @@
+sequence:
+  - action: input_number.set_value
+    data:
+      value: "{{ states('input_number.tmp_slot_1_id')|int(0) }}"
+    target:
+      entity_id: input_number.spool_slot_1_id
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.spool_slot_2_id
+      value: "{{ states('input_number.tmp_slot_2_id')|int(0) }}"
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.spool_slot_3_id
+      value: "{{ states('input_number.tmp_slot_3_id')|int(0) }}"
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.spool_slot_4_id
+      value: "{{ states('input_number.tmp_slot_4_id')|int(0) }}"
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.awaiting_slot_selection
+    data: {}
+  - action: browser_mod.close_popup
+    metadata: {}
+    data:
+      all: true
+      browser_id:
+        - "your broswer id here"
+alias: Apply tmp Slots to AMS
+description: Popup for AMS slot selections nfc tagged
+mode: restart
