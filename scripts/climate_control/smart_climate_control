@@ -213,3 +213,36 @@ description: >-
   including temperature, humidity, wind, cloud coverage, and fog predictions. It
   adjusts heating, defrost, and seat temperatures for optimal comfort and
   visibility.
+
+# Fog Status Template Sensor
+- sensor:
+    - name: "Fog Status"
+      unique_id: fog_status
+      availability: >
+          {{ states('sensor.pirateweather_temperature') not in ['unknown','unavailable']
+             and states('sensor.pirateweather_dew_point') not in ['unknown','unavailable'] }}
+      state: >
+          {% set t   = states('sensor.pirateweather_temperature') | float(nan) %}
+          {% set dp  = states('sensor.pirateweather_dew_point') | float(nan) %}
+          {% set hum = states('sensor.pirateweather_humidity') | float(nan) %}
+          {% set vis = states('sensor.pirateweather_visibility') | float(nan) %}
+          {% set spread = (t - dp) | abs %}
+          {% set tight_spread = spread < 1.5 %}
+          {% set high_hum = hum is number and hum > 92 %}
+          {% set low_vis = vis is number and vis <= 2 %}
+          {{ 'Likely Fog' if (tight_spread and high_hum) or low_vis else 'No Fog' }}
+      icon: >
+          {% set t   = states('sensor.pirateweather_temperature') | float(nan) %}
+          {% set dp  = states('sensor.pirateweather_dew_point') | float(nan) %}
+          {% set hum = states('sensor.pirateweather_humidity') | float(nan) %}
+          {% set vis = states('sensor.pirateweather_visibility') | float(nan) %}
+          {% set spread = (t - dp) | abs %}
+          {% set foggy = (spread < 1.5 and hum is number and hum > 92) or (vis is number and vis <= 2) %}
+          {{ 'mdi:weather-fog' if foggy else 'mdi:weather-sunny' }}
+      attributes:
+       spread_c: >
+            {% set t = states('sensor.pirateweather_temperature') | float(nan) %}
+            {% set dp = states('sensor.pirateweather_dew_point') | float(nan) %}
+            {{ ((t - dp) | abs) | round(1) }}
+       humidity_percent: "{{ states('sensor.pirateweather_humidity') | float(nan) }}"
+       visibility_km: "{{ states('sensor.pirateweather_visibility') | float(nan) }}"
