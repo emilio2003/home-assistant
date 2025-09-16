@@ -55,11 +55,11 @@ key attributes:
 
 `next_session_name, next_session_seconds, next_session_local_start`
 
-`weekend_type` (Race week, Sprint week, No race this week)
+`weekend_type` (`Race week`, `Sprint week`, `No race this week`)
 
 Per session: `fp1|fp2|fp3|sprint_quali|sprint|quali|race`
 each with `*_seconds_left, *_local_start, *_status`
-where status is In Progress, Starting, Scheduled Later, Ended, or Not Scheduled for easy automations
+where status is `In Progress, Starting, Scheduled Later, Ended, or Not Scheduled` for easy automations
 
 ---
 
