@@ -21,5 +21,5 @@ It is designed for Hyundai / Kia vehicles with the Kia UVO / Hyundai Bluelink in
 - [PirateWeather](https://github.com/Pirate-Weather/pirate-weather-ha) – Weather data  
 - [Environment Canada](https://github.com/michaeldavie/env_canada) – Humidex (Montreal)  
 - [Sun integration](https://www.home-assistant.io/integrations/sun/) – Day/night detection  
-- [Kia UVO / Hyundai Bluelink]((https://github.com/Hyundai-Kia-Connect/kia_uvo)) – Car climate control 
+- [Kia UVO / Hyundai Bluelink](https://github.com/Hyundai-Kia-Connect/kia_uvo) – Car climate control 
 - *(Optional)* Template `fog_status` sensor if you want it visible on your dashboard
