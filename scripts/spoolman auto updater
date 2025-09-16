@@ -1,0 +1,197 @@
+sequence:
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.tmp_slot_1_id
+      value: "{{ states('input_number.spool_slot_1_id')|int(0) }}"
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.tmp_slot_2_id
+      value: "{{ states('input_number.spool_slot_2_id')|int(0) }}"
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.tmp_slot_3_id
+      value: "{{ states('input_number.spool_slot_3_id')|int(0) }}"
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.tmp_slot_4_id
+      value: "{{ states('input_number.spool_slot_4_id')|int(0) }}"
+  - action: input_number.set_value
+    data:
+      entity_id: input_number.picked_spool_id
+      value: 0
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.awaiting_slot_selection
+  - action: browser_mod.popup
+    data:
+      title: Assign spools to AMS slots
+      size: wide
+      content:
+        type: vertical-stack
+        cards:
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: custom:button-card
+                name: Slot 1
+                show_state: true
+                state_display: |
+                  [[[
+                    const e = states['input_number.tmp_slot_1_id'];
+                    if (!e) return '–';
+                    const v = parseInt(e.state);
+                    return Number.isFinite(v)&&v>0 ? String(v) : '–';
+                  ]]]
+                tap_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_1_id
+                    value: |
+                      [[[
+                        const p = states['input_number.picked_spool_id'];
+                        return p ? Number(p.state)||0 : 0;
+                      ]]]
+                hold_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_1_id
+                    value: 0
+              - type: custom:button-card
+                name: Slot 2
+                show_state: true
+                state_display: |
+                  [[[
+                    const e = states['input_number.tmp_slot_2_id'];
+                    if (!e) return '–';
+                    const v = parseInt(e.state);
+                    return Number.isFinite(v)&&v>0 ? String(v) : '–';
+                  ]]]
+                tap_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_2_id
+                    value: |
+                      [[[
+                        const p = states['input_number.picked_spool_id'];
+                        return p ? Number(p.state)||0 : 0;
+                      ]]]
+                hold_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_2_id
+                    value: 0
+              - type: custom:button-card
+                name: Slot 3
+                show_state: true
+                state_display: |
+                  [[[
+                    const e = states['input_number.tmp_slot_3_id'];
+                    if (!e) return '–';
+                    const v = parseInt(e.state);
+                    return Number.isFinite(v)&&v>0 ? String(v) : '–';
+                  ]]]
+                tap_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_3_id
+                    value: |
+                      [[[
+                        const p = states['input_number.picked_spool_id'];
+                        return p ? Number(p.state)||0 : 0;
+                      ]]]
+                hold_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_3_id
+                    value: 0
+              - type: custom:button-card
+                name: Slot 4
+                show_state: true
+                state_display: |
+                  [[[
+                    const e = states['input_number.tmp_slot_4_id'];
+                    if (!e) return '–';
+                    const v = parseInt(e.state);
+                    return Number.isFinite(v)&&v>0 ? String(v) : '–';
+                  ]]]
+                tap_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_4_id
+                    value: |
+                      [[[
+                        const p = states['input_number.picked_spool_id'];
+                        return p ? Number(p.state)||0 : 0;
+                      ]]]
+                hold_action:
+                  action: call-service
+                  service: input_number.set_value
+                  service_data:
+                    entity_id: input_number.tmp_slot_4_id
+                    value: 0
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:button-card
+                name: Picked spool
+                show_state: true
+                state_display: |
+                  [[[
+                    const e = states['input_number.picked_spool_id'];
+                    if (!e) return '–';
+                    const v = parseInt(e.state);
+                    return Number.isFinite(v)&&v>0 ? String(v) : '–';
+                  ]]]
+              - type: button
+                name: Confirm
+                icon: mdi:check-circle
+                tap_action:
+                  action: call-service
+                  service: script.turn_on
+                  target:
+                    entity_id: script.1757699810474
+          - type: custom:auto-entities
+            card:
+              type: grid
+              columns: 4
+              square: false
+            card_param: cards
+            filter:
+              include:
+                - entity_id: sensor.spoolman_spool_*
+                  options:
+                    type: custom:button-card
+                    show_state: false
+                    name: |
+                      [[[
+                        const a = entity.attributes || {};
+                        const id = a.id ?? a.ID ?? parseInt(entity.entity_id.split('_').pop());
+                        const n = a.name || a.filament_name || `Spool ${id}`;
+                        const mat = a.filament_material || '';
+                        const col = a.color || '';
+                        return `${n} (#${id}) ${mat} ${col}`.trim();
+                      ]]]
+                    tap_action:
+                      action: call-service
+                      service: input_number.set_value
+                      service_data:
+                        entity_id: input_number.picked_spool_id
+                        value: |
+                          [[[
+                            const a = entity.attributes || {};
+                            const id = a.id ?? a.ID ?? parseInt(entity.entity_id.split('_').pop());
+                            return Number(id)||0;
+                          ]]]
+      browser_id:
+        - f8a20030fd0725f6cab239e2eda83bfb
+alias: Popup Spools
+description: ""
