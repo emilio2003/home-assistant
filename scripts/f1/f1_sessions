@@ -1,0 +1,367 @@
+- sensor:
+# F1 - Unified sessions (driven by sensor.f1 progress states)
+    - name: "F1 Sessions"
+      unique_id: f1_sessions_progress_aware
+      icon: >
+        {% set n = this.attributes.next_session_name | default('') %}
+        {% set c = this.attributes.current_session_name | default('') %}
+        {% set p = this.attributes.espn_prog | default('not_known') %}
+        {% set label = n if p in ['pre','not_known','post'] else c %}
+        {% if 'Sprint' in label %}mdi:run-fast
+        {% elif 'Qualifying' in label %}mdi:timer-outline
+        {% elif 'Race' in label %}mdi:flag-checkered
+        {% elif 'FP' in label %}mdi:alpha-f-circle
+        {% else %}mdi:calendar-clock
+        {% endif %}
+      state: >
+        {% set p  = this.attributes.progress | default('ended') %}
+        {% set ep  = this.attributes.espn_prog | default('pre') %}
+        {% set cn = this.attributes.current_session_name | default('unknown') %}
+        {% set nn = this.attributes.next_session_name | default('unknown') %}
+        {% set ns = this.attributes.next_session_seconds | default('unknown') %}
+        {% set s = ns | int(0) %}
+          {% if s < 60 %}{{ nn }} in {{ s }}s
+          {% elif s < 3600 %}{{ nn }} in {{ s // 60 }}m
+          {% elif s < 86400 %}{{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+          {% else %}{{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+          {% endif %}
+
+      attributes:
+# --- Primary source (progress + current/next) ---
+        progress: "{{ states('sensor.f1_session_status') | lower }}"   # live, ended, finalised, finished, pre, suspended
+        espn_prog: "{{ states('sensor.f1') | lower }}"   # pre, post, in, not_found
+        
+        progress_full: >
+            {% set p  = this.attributes.progress | default('ended') %}
+            {% set ep  = this.attributes.espn_prog | default('pre') %}
+            {% set cn = this.attributes.current_session_name | default('unknown') %}
+            {% set nn = this.attributes.next_session_name | default('unknown') %}
+            {% set ns = this.attributes.next_session_seconds | default('unknown') %}
+            {% if p == 'live' %}
+               {{ cn }} in Progress!
+            {% elif p == 'ended' and cn == 'Race' %}
+              {{ cn }} Finished! {{ states('sensor.f1_last_race_results')}} Won
+            {% elif ep == 'pre' %}
+              {% set s = ns | int(0) %}
+              {% if s < 60 %}Next: {{ nn }} in {{ s }}s
+              {% elif s < 3600 %}Next: {{ nn }} in {{ s // 60 }}m
+              {% elif s < 86400 %}Next: {{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+              {% else %}Next: {{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+              {% endif %}
+            {% elif p == 'ended' %}
+            {% set s = ns | int(0) %}
+              {% if s < 60 %}Next Session is {{ nn }} in {{ s }}s
+              {% elif s < 3600 %}Next Session is {{ nn }} in {{ s // 60 }}m
+              {% elif s < 86400 %}Next Session is {{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+              {% else %}Next Session is {{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+              {% endif %}
+            {% elif p == 'finalized' %}
+              {{ cn }} Finished!
+            {% else %}
+              NO Info
+            {% endif %}
+        
+        current_session_name: "{{ state_attr('sensor.f1_sessions','current_session_name_lower') | upper}}"
+        current_session_name_lower: >
+            {% set A = 'sensor.f1_sessions' %}
+            {% set items = [] %}
+            {% set secs = state_attr(A,'fp1_seconds_left') %}
+            {% set items = items + ([('fp1', secs, state_attr(A,'fp1_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'fp2_seconds_left') %}
+            {% set items = items + ([('fp2', secs, state_attr(A,'fp2_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'fp3_seconds_left') %}
+            {% set items = items + ([('fp3', secs, state_attr(A,'fp3_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'sprint_quali_seconds_left') %}
+            {% set items = items + ([('sprint_quali', secs, state_attr(A,'sprint_quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'sprint_seconds_left') %}
+            {% set items = items + ([('sprint', secs, state_attr(A,'sprint_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'quali_seconds_left') %}
+            {% set items = items + ([('qualifying', secs, state_attr(A,'quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'race_seconds_left') %}
+            {% set items = items + ([('race', secs, state_attr(A,'race_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set future = items | selectattr(1, '>', 0) | sort(attribute=1) | list %}
+            {% set current = future[0] if future|length > 0 else none %}
+            {{ current[0] if current else 'unknown' }}
+        
+        current_session_local_start: >
+            {% set A = 'sensor.f1_sessions' %}
+            {% set items = [] %}
+            {% set secs = state_attr(A,'fp1_seconds_left') %}
+            {% set items = items + ([('fp1', secs, state_attr(A,'fp1_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'fp2_seconds_left') %}
+            {% set items = items + ([('fp2', secs, state_attr(A,'fp2_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'fp3_seconds_left') %}
+            {% set items = items + ([('fp3', secs, state_attr(A,'fp3_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'sprint_quali_seconds_left') %}
+            {% set items = items + ([('sprint_quali', secs, state_attr(A,'sprint_quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'sprint_seconds_left') %}
+            {% set items = items + ([('sprint', secs, state_attr(A,'sprint_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'quali_seconds_left') %}
+            {% set items = items + ([('qualifying', secs, state_attr(A,'quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set secs = state_attr(A,'race_seconds_left') %}
+            {% set items = items + ([('race', secs, state_attr(A,'race_local_start'))] if secs not in [none, 'unknown'] else []) %}
+            {% set future = items | selectattr(1, '>', 0) | sort(attribute=1) | list %}
+            {% set current = future[0] if future|length > 0 else none %}
+            {{ current[2] if current else 'unknown' }}
+
+ # --- Next session (prefer sensor.f1_next_session if you have it) ---
+        next_session_name: >
+          {# Fallback: compute from next_race object, same order you used earlier #}
+          {% set e = 'sensor.f1_next_race' %}
+          {% set sessions = [
+            ('FP1','first_practice_start'),
+            ('FP2','second_practice_start'),
+            ('FP3','third_practice_start'),
+            ('Sprint Qualifying','sprint_qualifying_start'),
+            ('Sprint','sprint_start'),
+            ('Qualifying','qualifying_start'),
+            ('Race','race_start')
+          ] %}
+          {% set best = namespace(name=None, dt=None) %}
+          {% for name, key in sessions %}
+            {% set raw = state_attr(e, key) %}
+            {% if raw not in [none,'','None','null'] %}
+              {% set dt = as_datetime(raw, none) %}
+              {% if dt %}
+                {% set dt = dt.astimezone(now().tzinfo) %}
+                {% if dt > now() and (best.dt is none or dt < best.dt) %}
+                  {% set best.name = name %}
+                  {% set best.dt = dt %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ best.name if best.dt else 'unknown' }}
+
+          
+        next_session_seconds: >
+
+          {% set nn = this.attributes.next_session_name | default('unknown') %}
+          {% if nn in ['unknown',''] %}unknown{% else %}
+            {% set map = {
+              'FP1':'first_practice_start','FP2':'second_practice_start','FP3':'third_practice_start',
+              'Sprint Qualifying':'sprint_qualifying_start','Sprint':'sprint_start',
+              'Qualifying':'qualifying_start','Race':'race_start'
+            } %}
+            {% set raw2 = state_attr('sensor.f1_next_race', map[nn]) %}
+            {% set dt2  = as_datetime(raw2, none) if raw2 not in [none,'','None','null'] else none %}
+            {% if not dt2 %}unknown{% else %}
+              {% set s = (dt2.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+              {{ 0 if s < 0 else s }}
+            {% endif %}
+          {% endif %}
+
+          
+        next_session_local_start: >
+            {% set nn = this.attributes.next_session_name | default('unknown') %}
+            {% set map = {
+              'FP1':'first_practice_start','FP2':'second_practice_start','FP3':'third_practice_start',
+              'Sprint Qualifying':'sprint_qualifying_start','Sprint':'sprint_start',
+              'Qualifying':'qualifying_start','Race':'race_start'
+            } %}
+            {% set raw2 = state_attr('sensor.f1_next_race', map.get(nn)) %}
+            {% set dt = as_datetime(raw2, none) if raw2 not in [none,'','None','null'] else none %}
+            {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') if dt else '' }}
+          
+# Weekend type in the same entity
+        weekend_type: >
+          {% set e = 'sensor.f1_next_race' %}
+          {% set sprint = state_attr(e,'sprint_start') or state_attr(e,'sprint_qualifying_start') %}
+          {% set race   = state_attr(e,'race_start') %}
+          {% set w  = now().isocalendar()[1] %}
+          {% set yr = now().year %}
+          {% set sdt = as_datetime(sprint, none) if sprint else none %}
+          {% set rdt = as_datetime(race, none)   if race   else none %}
+          {% if sdt and sdt.astimezone(now().tzinfo).isocalendar()[1] == w and sdt.year == yr %}Sprint week
+          {% elif rdt and rdt.astimezone(now().tzinfo).isocalendar()[1] == w and rdt.year == yr %}Race week
+          {% else %}No race this week{% endif %}
+          
+# --- Per-session attributes (seconds + local start) using next_race as canonical times ---
+        fp1_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','first_practice_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+          
+        fp1_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','first_practice_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') if dt else '' }}
+
+        fp2_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','second_practice_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+        fp2_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','second_practice_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') if dt else '' }}
+
+        fp3_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','third_practice_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+        fp3_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','third_practice_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') if dt else '' }}
+
+        sprint_quali_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','sprint_qualifying_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+        sprint_quali_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','sprint_qualifying_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if dt %}
+            {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') }}
+          {% else %}
+            Not Scheduled
+          {% endif %}
+
+        sprint_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','sprint_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+        sprint_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','sprint_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if dt %}
+            {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') }}
+          {% else %}
+            Not Scheduled
+          {% endif %}
+
+        quali_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','qualifying_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+        quali_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','qualifying_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') if dt else '' }}
+
+        race_seconds_left: >
+          {% set raw = state_attr('sensor.f1_next_race','race_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {% if not dt %}unknown{% else %}
+          {% set s = (dt.astimezone(now().tzinfo) - now()).total_seconds() | int %}
+          {{ 0 if s < 0 else s }}{% endif %}
+        race_local_start: >
+          {% set raw = state_attr('sensor.f1_next_race','race_start') %}
+          {% set dt = as_datetime(raw, none) if raw not in [none,'','None','null'] else none %}
+          {{ dt.astimezone(now().tzinfo).strftime('%a %b %-d, %H:%M') if dt else '' }}
+          
+# Session Status
+        about_to_start_window_seconds: 600
+        
+        fp1_status: >
+          {% set sec = state_attr(this.entity_id,'fp1_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'FP1' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+        
+        fp2_status: >
+          {% set sec = state_attr(this.entity_id,'fp2_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'FP2' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+        
+        fp3_status: >
+          {% set sec = state_attr(this.entity_id,'fp3_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'FP3' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+        
+        sprint_quali_status: >
+          {% set sec = state_attr(this.entity_id,'sprint_quali_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'Sprint Qualifying' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+        
+        sprint_status: >
+          {% set sec = state_attr(this.entity_id,'sprint_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'Sprint' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+        
+        quali_status: >
+          {% set sec = state_attr(this.entity_id,'quali_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'Qualifying' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+        
+        race_status: >
+          {% set sec = state_attr(this.entity_id,'race_seconds_left') %}
+          {% set cur = state_attr(this.entity_id,'current_session_name') %}
+          {% set prog = states('sensor.f1_session_status') %}
+          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
+          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
+          {% else %}
+            {% set s = sec|int(0) %}
+            {% if prog == 'live' and cur == 'Race' %}In Progress
+            {% elif s > 0 and s <= w %}Starting
+            {% elif s > 0 %}Scheduled Later
+            {% else %}Ended{% endif %}
+          {% endif %}
+
+        
