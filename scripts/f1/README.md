@@ -26,12 +26,6 @@ Two template sensors that unify multiple F1 sources into clear, UI friendly stat
 
 > If your entity names differ, update them in the YAML.
 
-## Install
-1. Save the YAML into `config/templates/f1.yaml` (or your templates folder).
-2. In `configuration.yaml`, include templates if not already:
-   ```yaml
-   template: !include_dir_merge_list templates
-
 ## Entities created
 
 sensor.f1_session_state
@@ -62,3 +56,11 @@ weekend_type (Race week, Sprint week, No race this week)
 Per session: fp1|fp2|fp3|sprint_quali|sprint|quali|race
 each with *_seconds_left, *_local_start, *_status
 where status is In Progress, Starting, Scheduled Later, Ended, or Not Scheduled
+
+## Notes
+
+Priority in F1 Session State: finished, red, VSC, SC, yellow, green, unknown.
+
+Time handling uses as_datetime(...).astimezone(now().tzinfo) so countdowns and labels are local.
+
+If your data source uses finalized vs finished, both paths are handled by progress_full.
