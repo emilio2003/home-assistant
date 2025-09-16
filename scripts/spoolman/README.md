@@ -16,7 +16,7 @@ It provides an end-to-end workflow for assigning spools to slots, confirming ass
 - Uses `input_number.tmp_slot_*` helpers to store temporary slot selections.  
 - Starts selection mode with `input_boolean.awaiting_slot_selection`.
 
-### 2. [Apply Temporary Slots](./
+### 2. [Apply Temporary Slots](./apply_tmp_slots)
 - Confirms the spool assignments made in the popup.  
 - Copies values from:
   - `input_number.tmp_slot_1_id` → `input_number.spool_slot_1_id`  
