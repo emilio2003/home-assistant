@@ -23,6 +23,3 @@ It is designed for Hyundai / Kia vehicles with the Kia UVO / Hyundai Bluelink in
 - **Sun integration** (for `is_day`)  
 - **Kia UVO / Hyundai Bluelink integration** (for `kia_uvo.start_climate`)  
 - *(Optional)* Template `fog_status` sensor if you want it visible on your dashboard
-
-## 📂 File Location
-Place the script in:
