@@ -17,7 +17,9 @@ Two template sensors that unify multiple F1 sources into clear, UI friendly stat
 
 ## Requirements
 - Home Assistant Template integration enabled
-- F1 sensors already available in your setup:
+- [ESPN Team Tracker](https://github.com/vasqued2/ha-teamtracker) integration for F1
+- [F1 Sensor](https://github.com/Nicxe/f1_sensor) integration
+- F1 sensors already available in your setup from [F1 Sensor](https://github.com/Nicxe/f1_sensor):
   - `sensor.f1_session_status` (live, ended, finished, finalized, pre, suspended)
   - `sensor.f1_track_status` (CLEAR, YELLOW, RED, VSC, SC)
   - `sensor.f1_flag` attributes: `Track flag`, `Sc mode`
