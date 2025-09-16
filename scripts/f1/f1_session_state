@@ -1,0 +1,44 @@
+- sensor:
+  - name: "F1 Session State"
+    unique_id: f1_session_state
+    icon: mdi:flag-checkered
+    state: >
+      {% set track = (states('sensor.f1_track_status') or '') | upper %}
+      {% set track_flag = (state_attr('sensor.f1_flag','Track flag') or '') | lower %}
+      {% set sc_mode = (state_attr('sensor.f1_flag','Sc mode') or '') | upper %}
+      {% set sc = is_state('sensor.f1_track_status','SC') %}
+    
+      {# Priority decision #}
+      {% if states('sensor.f1_session_status') == 'finished' %}
+        CHEQUERED
+      {% elif track == 'RED' %}
+        RED
+      {% elif track == 'VSC' or sc_mode == 'VIRTUAL SAFETY CAR' %}
+        Virtual Safety Car
+      {% elif sc %}
+        SAFETY CAR
+      {% elif track == 'YELLOW' %}
+        YELLOW
+      {% elif track == 'CLEAR' %}
+        GREEN
+      {% elif track in ['UNKNOWN','UNAVAILABLE','','NONE'] %}
+        UNKNOWN
+      {% else %}
+        UNKNOWN
+      {% endif %}
+    attributes:
+      track_status: "{{ states('sensor.f1_track_status') }}"
+      safety_car: "{{ is_state('binary_sensor.f1_safety_car','on') }}"
+      is_chequered: >
+        {{ (states('sensor.f1_track_status') or '') | lower == 'chequered' }}
+      is_red: >
+        {{ states('sensor.f1_track_status') == 'RED' }}
+      is_vsc: >
+        {{ states('sensor.f1_track_status') == 'VSC'
+           or (((state_attr('sensor.f1_flag','Sc mode') or '') | upper) == 'VIRTUAL SAFETY CAR') }}
+      is_safety_car: "{{ is_state('binary_sensor.f1_safety_car', 'on') }}"
+      is_yellow: >
+        {{ states('sensor.f1_track_status') == 'YELLOW'
+           or ((states('sensor.f1_flag') | lower) == 'yellow') }}
+      is_green: >
+        {{ states('sensor.f1_track_status') in ['CLEAR'] }}
