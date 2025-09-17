@@ -1,9 +1,7 @@
 # Home Assistant Configuration by Emilio
 
 This repository contains my full Home Assistant configuration, scripts, templates, dashboards, and automations.  
-It serves as both a backup of my setup and a resource for others who want to explore advanced Home Assistant automations. If you have any 
-
-## Feedback
+It serves as both a backup of my setup and a resource for others who want to explore advanced Home Assistant automations.
 If you have any suggestions or notice something that could be improved, feel free to open an issue or submit a pull request. Contributions are always welcome!
 
 ## License
