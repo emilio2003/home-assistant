@@ -7,7 +7,7 @@ A template sensor that unifies multiple F1 sources into clear, UI friendly state
 - [**F1 Sessions**](./f1_sessions)
   Progress aware, current vs next session, countdowns, local times, and per session status.
   - State shows the next session with a human readable countdown
-  - Attributes include `progress`, `espn_prog`, `current_session_name`, `next_session_name`, `*_seconds_left`, `*_local_start`, `weekend_type`, and per session `*_status`
+  - Attributes include `progress`, `espn_prog`, `current_session_name`, `next_session_name`, `*_seconds_left`, `*_local_start`, `weekend_type`, and per session status
 
 ---
 
