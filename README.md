@@ -21,6 +21,4 @@ Automations for **Bambu Lab AMS + Spoolman** spool management
 
 ### 3) [F1 Session Status](./scripts/f1)
 Progress aware sensors that turn raw F1 data into clear session states, countdowns, and per session status. Built for dashboards and automations.
-- [**sensor.f1_session_state**](./scripts/f1/f1_session_state) - One readable flag state: CHEQUERED, RED, Virtual Safety Car, SAFETY CAR, YELLOW, GREEN, UNKNOWN.  
-  Useful for chips, badges, and quick alerts.
-- [**sensor.f1_sessions**](./scripts/f1/f1_session_state) - Next session countdown in the state, with attributes for progress, current vs next, local start times, and per session status (automation-friendly).
+[**sensor.f1_sessions**](./scripts/f1/f1_session_state) - Next session countdown in the state, with attributes for progress, current vs next, local start times, and per session status (automation-friendly).
