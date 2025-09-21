@@ -28,29 +28,6 @@ A template sensor that unifies multiple F1 sources into clear, UI friendly state
 
 ---
 
-## Entities created
-### Main sensor:
-`sensor.f1_sessions`
-
-#### state
-friendly next session countdown, for example: `Qualifying in 1h 23m`
-
-#### attributes:
-
-`progress', espn_prog, progress_full`
-
-`current_session_name, current_session_local_start`
-
-`next_session_name, next_session_seconds, next_session_local_start`
-
-`weekend_type` (`Race week`, `Sprint week`, `No race this week`)
-
-Per session: `fp1|fp2|fp3|sprint_quali|sprint|quali|race`
-each with `*_seconds_left, *_local_start, *_status`
-where status is `In Progress, Starting, Scheduled Later, Ended, or Not Scheduled` for easy automations
-
----
-
 ## Notes
 
 Time handling uses as_datetime(...).astimezone(now().tzinfo) so countdowns and labels are local.
