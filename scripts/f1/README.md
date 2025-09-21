@@ -1,6 +1,6 @@
 # F1 Session Sensors (Home Assistant)
 
-A template sensor that unify multiple F1 sources into clear, UI friendly states.
+A template sensor that unifies multiple F1 sources into clear, UI friendly states.
 
 ## What’s included
 
