@@ -1,12 +1,8 @@
 # F1 Session Sensors (Home Assistant)
 
-Two template sensors that unify multiple F1 sources into clear, UI friendly states.
+A template sensor that unify multiple F1 sources into clear, UI friendly states.
 
 ## What’s included
-- [**F1 Session State**](./f1_session_state)  
-  Normalizes track and session flags into one readable state:
-  - `CHEQUERED`, `RED`, `Virtual Safety Car`, `SAFETY CAR`, `YELLOW`, `GREEN`, `UNKNOWN`
-  - Attributes expose raw values and booleans for quick theming
 
 - [**F1 Sessions**](./f1_sessions)
   Progress aware, current vs next session, countdowns, local times, and per session status.
@@ -33,18 +29,7 @@ Two template sensors that unify multiple F1 sources into clear, UI friendly stat
 ---
 
 ## Entities created
-
-### Main sensor 1:
-`sensor.f1_session_state`
-#### state
-`CHEQUERED | RED | Virtual Safety Car | SAFETY CAR | YELLOW | GREEN | UNKNOWN`
-
-#### attributes:
-`track_status`, `safety_car`
-
-`is_chequered`, `is_red`, 'is_vsc', 'is_safety_car', 'is_yellow', 'is_green'
-
-### Main sensor 2:
+### Main sensor:
 `sensor.f1_sessions`
 
 #### state
@@ -67,8 +52,6 @@ where status is `In Progress, Starting, Scheduled Later, Ended, or Not Scheduled
 ---
 
 ## Notes
-
-Priority in F1 Session State: finished, red, VSC, SC, yellow, green, unknown.
 
 Time handling uses as_datetime(...).astimezone(now().tzinfo) so countdowns and labels are local.
 
