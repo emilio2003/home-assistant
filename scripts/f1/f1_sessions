@@ -14,95 +14,162 @@
         {% else %}mdi:calendar-clock
         {% endif %}
       state: >
-        {% set p  = this.attributes.progress | default('ended') %}
-        {% set ep  = this.attributes.espn_prog | default('pre') %}
-        {% set cn = this.attributes.current_session_name | default('unknown') %}
-        {% set nn = this.attributes.next_session_name | default('unknown') %}
-        {% set ns = this.attributes.next_session_seconds | default('unknown') %}
-        {% set s = ns | int(0) %}
-          {% if s < 60 %}{{ nn }} in {{ s }}s
-          {% elif s < 3600 %}{{ nn }} in {{ s // 60 }}m
-          {% elif s < 86400 %}{{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
-          {% else %}{{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+        {# --- pull basics --- #}
+        {% set status = states('sensor.f1_session_status') %}
+        {% set laps = states('sensor.f1_race_lap_count') %}
+        {% set results = states('sensor.f1_last_race_results') %}
+        {% set cn = state_attr('sensor.f1','quarter') | default('session', true) %}
+        {% set nowts = now().timestamp()|int %}
+        
+        {# --- winner banner (only after race ends, for 1h) --- #}
+        {% set winner_recent = 0 < (nowts - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 3600 %}
+        {% if winner_recent and status in ['finished','finalised','ended'] and results not in ['unknown','unavailable',''] %}
+          Race ended - {{ results }} won
+        
+        {# --- live / suspended --- #}
+        {% elif status in ['live','suspended'] %}
+          {% if status == 'suspended' %}
+            {{ cn }} suspended
+          {% elif cn|lower == 'race' and laps not in ['unknown','unavailable',''] %}
+            {{ cn }} on lap {{ laps }}
+          {% else %}
+            {{ cn }} in progress
           {% endif %}
+        
+        {# --- finished/finalised/ended: show "ended" for 10 min, else next countdown --- #}
+        {% elif status in ['finished','finalised','ended'] %}
+          {% set lc = states.sensor.f1_session_status.last_changed.timestamp()|int %}
+          {% set ended_recent = 0 < (nowts - lc) <= 14400 %}
+          {% if ended_recent %}
+            {{ cn }} ended
+          {% else %}
+            {% set fp1 = as_timestamp(state_attr('sensor.f1_next_race','first_practice_start_local'), default=0)|int %}
+            {% set fp2 = as_timestamp(state_attr('sensor.f1_next_race','second_practice_start_local'), default=0)|int %}
+            {% set fp3 = as_timestamp(state_attr('sensor.f1_next_race','third_practice_start_local'), default=0)|int %}
+            {% set sq  = as_timestamp(state_attr('sensor.f1_next_race','sprint_qualifying_start_local'), default=0)|int %}
+            {% set sp  = as_timestamp(state_attr('sensor.f1_next_race','sprint_start_local'), default=0)|int %}
+            {% set qu  = as_timestamp(state_attr('sensor.f1_next_race','qualifying_start_local'), default=0)|int %}
+            {% set ra  = as_timestamp(state_attr('sensor.f1_next_race','race_start_local'), default=0)|int %}
+        
+            {% set nn = none %}{% set nt = 0 %}
+            {% if fp1 > nowts and (nn is none or fp1 < nt) %}{% set nn = 'FP1' %}{% set nt = fp1 %}{% endif %}
+            {% if fp2 > nowts and (nn is none or fp2 < nt) %}{% set nn = 'FP2' %}{% set nt = fp2 %}{% endif %}
+            {% if fp3 > nowts and (nn is none or fp3 < nt) %}{% set nn = 'FP3' %}{% set nt = fp3 %}{% endif %}
+            {% if sq  > nowts and (nn is none or sq  < nt) %}{% set nn = 'Sprint Quali' %}{% set nt = sq  %}{% endif %}
+            {% if sp  > nowts and (nn is none or sp  < nt) %}{% set nn = 'Sprint' %}{% set nt = sp  %}{% endif %}
+            {% if qu  > nowts and (nn is none or qu  < nt) %}{% set nn = 'Qualifying' %}{% set nt = qu  %}{% endif %}
+            {% if ra  > nowts and (nn is none or ra  < nt) %}{% set nn = 'Race' %}{% set nt = ra  %}{% endif %}
+        
+            {% if nn %}
+              {% set s = (nt - nowts)|int %}
+              {% if s < 60 %}{{ nn }} in {{ s }}s
+              {% elif s < 3600 %}{{ nn }} in {{ s // 60 }}m
+              {% elif s < 86400 %}{{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+              {% else %}{{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+              {% endif %}
+            {% else %}
+              {{ cn }} ended
+            {% endif %}
+          {% endif %}
+        
+        {# --- pre: show countdown for this quarter if its time is known --- #}
+        {% elif status == 'pre' %}
+          {% set t = 0 %}
+          {% if   cn == 'FP1' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','first_practice_start_local'), default=0)|int %}
+          {% elif cn == 'FP2' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','second_practice_start_local'), default=0)|int %}
+          {% elif cn == 'FP3' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','third_practice_start_local'), default=0)|int %}
+          {% elif cn == 'Sprint Quali' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','sprint_qualifying_start_local'), default=0)|int %}
+          {% elif cn == 'Sprint' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','sprint_start_local'), default=0)|int %}
+          {% elif cn == 'Qualifying' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','qualifying_start_local'), default=0)|int %}
+          {% elif cn == 'Race' %}{% set t = as_timestamp(state_attr('sensor.f1_next_race','race_start_local'), default=0)|int %}
+          {% endif %}
+          {% set s = max(t - nowts, 0) %}
+          {% if t > nowts %}
+            {% if s < 60 %}{{ cn }} in {{ s }}s
+            {% elif s < 3600 %}{{ cn }} in {{ s // 60 }}m
+            {% elif s < 86400 %}{{ cn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+            {% else %}{{ cn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+            {% endif %}
+          {% else %}
+            {{ cn }} upcoming
+          {% endif %}
+        
+        {# --- break: show next session countdown if any --- #}
+        {% elif status == 'break' %}
+          {% set fp1 = as_timestamp(state_attr('sensor.f1_next_race','first_practice_start_local'), default=0)|int %}
+          {% set fp2 = as_timestamp(state_attr('sensor.f1_next_race','second_practice_start_local'), default=0)|int %}
+          {% set fp3 = as_timestamp(state_attr('sensor.f1_next_race','third_practice_start_local'), default=0)|int %}
+          {% set sq  = as_timestamp(state_attr('sensor.f1_next_race','sprint_qualifying_start_local'), default=0)|int %}
+          {% set sp  = as_timestamp(state_attr('sensor.f1_next_race','sprint_start_local'), default=0)|int %}
+          {% set qu  = as_timestamp(state_attr('sensor.f1_next_race','qualifying_start_local'), default=0)|int %}
+          {% set ra  = as_timestamp(state_attr('sensor.f1_next_race','race_start_local'), default=0)|int %}
+        
+          {% set nn = none %}{% set nt = 0 %}
+          {% if fp1 > nowts and (nn is none or fp1 < nt) %}{% set nn = 'FP1' %}{% set nt = fp1 %}{% endif %}
+          {% if fp2 > nowts and (nn is none or fp2 < nt) %}{% set nn = 'FP2' %}{% set nt = fp2 %}{% endif %}
+          {% if fp3 > nowts and (nn is none or fp3 < nt) %}{% set nn = 'FP3' %}{% set nt = fp3 %}{% endif %}
+          {% if sq  > nowts and (nn is none or sq  < nt) %}{% set nn = 'Sprint Quali' %}{% set nt = sq  %}{% endif %}
+          {% if sp  > nowts and (nn is none or sp  < nt) %}{% set nn = 'Sprint' %}{% set nt = sp  %}{% endif %}
+          {% if qu  > nowts and (nn is none or qu  < nt) %}{% set nn = 'Qualifying' %}{% set nt = qu  %}{% endif %}
+          {% if ra  > nowts and (nn is none or ra  < nt) %}{% set nn = 'Race' %}{% set nt = ra  %}{% endif %}
+        
+          {% if nn %}
+            {% set s = (nt - nowts)|int %}
+            {% if s < 60 %}{{ nn }} in {{ s }}s
+            {% elif s < 3600 %}{{ nn }} in {{ s // 60 }}m
+            {% elif s < 86400 %}{{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+            {% else %}{{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+            {% endif %}
+          {% else %}
+            break before next session
+          {% endif %}
+        
+        {# --- fallback: if nothing matches, show next session or no race --- #}
+        {% else %}
+          {% set fp1 = as_timestamp(state_attr('sensor.f1_next_race','first_practice_start_local'), default=0)|int %}
+          {% set fp2 = as_timestamp(state_attr('sensor.f1_next_race','second_practice_start_local'), default=0)|int %}
+          {% set fp3 = as_timestamp(state_attr('sensor.f1_next_race','third_practice_start_local'), default=0)|int %}
+          {% set sq  = as_timestamp(state_attr('sensor.f1_next_race','sprint_qualifying_start_local'), default=0)|int %}
+          {% set sp  = as_timestamp(state_attr('sensor.f1_next_race','sprint_start_local'), default=0)|int %}
+          {% set qu  = as_timestamp(state_attr('sensor.f1_next_race','qualifying_start_local'), default=0)|int %}
+          {% set ra  = as_timestamp(state_attr('sensor.f1_next_race','race_start_local'), default=0)|int %}
+        
+          {% set nn = none %}{% set nt = 0 %}
+          {% if fp1 > nowts and (nn is none or fp1 < nt) %}{% set nn = 'FP1' %}{% set nt = fp1 %}{% endif %}
+          {% if fp2 > nowts and (nn is none or fp2 < nt) %}{% set nn = 'FP2' %}{% set nt = fp2 %}{% endif %}
+          {% if fp3 > nowts and (nn is none or fp3 < nt) %}{% set nn = 'FP3' %}{% set nt = fp3 %}{% endif %}
+          {% if sq  > nowts and (nn is none or sq  < nt) %}{% set nn = 'Sprint Quali' %}{% set nt = sq  %}{% endif %}
+          {% if sp  > nowts and (nn is none or sp  < nt) %}{% set nn = 'Sprint' %}{% set nt = sp  %}{% endif %}
+          {% if qu  > nowts and (nn is none or qu  < nt) %}{% set nn = 'Qualifying' %}{% set nt = qu  %}{% endif %}
+          {% if ra  > nowts and (nn is none or ra  < nt) %}{% set nn = 'Race' %}{% set nt = ra  %}{% endif %}
+        
+          {% if nn %}
+            {% set s = (nt - nowts)|int %}
+            {% if s < 60 %}{{ nn }} in {{ s }}s
+            {% elif s < 3600 %}{{ nn }} in {{ s // 60 }}m
+            {% elif s < 86400 %}{{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
+            {% else %}{{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
+            {% endif %}
+          {% else %}
+            no race this week
+          {% endif %}
+        {% endif %}
+
 
       attributes:
 # --- Primary source (progress + current/next) ---
         progress: "{{ states('sensor.f1_session_status') | lower }}"   # live, ended, finalised, finished, pre, suspended
         espn_prog: "{{ states('sensor.f1') | lower }}"   # pre, post, in, not_found
-        
-        progress_full: >
-            {% set p  = this.attributes.progress | default('ended') %}
-            {% set ep  = this.attributes.espn_prog | default('pre') %}
-            {% set cn = this.attributes.current_session_name | default('unknown') %}
-            {% set nn = this.attributes.next_session_name | default('unknown') %}
-            {% set ns = this.attributes.next_session_seconds | default('unknown') %}
-            {% if p == 'live' %}
-               {{ cn }} in Progress!
-            {% elif p == 'ended' and cn == 'Race' %}
-              {{ cn }} Finished! {{ states('sensor.f1_last_race_results')}} Won
-            {% elif ep == 'pre' %}
-              {% set s = ns | int(0) %}
-              {% if s < 60 %}Next: {{ nn }} in {{ s }}s
-              {% elif s < 3600 %}Next: {{ nn }} in {{ s // 60 }}m
-              {% elif s < 86400 %}Next: {{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
-              {% else %}Next: {{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
-              {% endif %}
-            {% elif p == 'ended' %}
-            {% set s = ns | int(0) %}
-              {% if s < 60 %}Next Session is {{ nn }} in {{ s }}s
-              {% elif s < 3600 %}Next Session is {{ nn }} in {{ s // 60 }}m
-              {% elif s < 86400 %}Next Session is {{ nn }} in {{ s // 3600 }}h {{ (s % 3600)//60 }}m
-              {% else %}Next Session is {{ nn }} in {{ s // 86400 }}d {{ (s % 86400)//3600 }}h
-              {% endif %}
-            {% elif p == 'finalized' %}
-              {{ cn }} Finished!
-            {% else %}
-              NO Info
-            {% endif %}
-        
         current_session_name: "{{ state_attr('sensor.f1_sessions','current_session_name_lower') | upper}}"
-        current_session_name_lower: >
-            {% set A = 'sensor.f1_sessions' %}
-            {% set items = [] %}
-            {% set secs = state_attr(A,'fp1_seconds_left') %}
-            {% set items = items + ([('fp1', secs, state_attr(A,'fp1_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'fp2_seconds_left') %}
-            {% set items = items + ([('fp2', secs, state_attr(A,'fp2_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'fp3_seconds_left') %}
-            {% set items = items + ([('fp3', secs, state_attr(A,'fp3_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'sprint_quali_seconds_left') %}
-            {% set items = items + ([('sprint_quali', secs, state_attr(A,'sprint_quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'sprint_seconds_left') %}
-            {% set items = items + ([('sprint', secs, state_attr(A,'sprint_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'quali_seconds_left') %}
-            {% set items = items + ([('qualifying', secs, state_attr(A,'quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'race_seconds_left') %}
-            {% set items = items + ([('race', secs, state_attr(A,'race_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set future = items | selectattr(1, '>', 0) | sort(attribute=1) | list %}
-            {% set current = future[0] if future|length > 0 else none %}
-            {{ current[0] if current else 'unknown' }}
+        current_session_name_lower: "{{ state_attr('sensor.f1','quarter') }}"
+        current_lap: "{{ states('sensor.f1_race_lap_count') }}"
+        race_winner: "{{ states('sensor.f1_last_race_results') }}"
+        winner_race_name: "{{ state_attr('sensor.f1_last_race_results','race_name') }}"
+        winner_round: "{{ state_attr('sensor.f1_last_race_results','round') }}"
         
-        current_session_local_start: >
-            {% set A = 'sensor.f1_sessions' %}
-            {% set items = [] %}
-            {% set secs = state_attr(A,'fp1_seconds_left') %}
-            {% set items = items + ([('fp1', secs, state_attr(A,'fp1_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'fp2_seconds_left') %}
-            {% set items = items + ([('fp2', secs, state_attr(A,'fp2_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'fp3_seconds_left') %}
-            {% set items = items + ([('fp3', secs, state_attr(A,'fp3_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'sprint_quali_seconds_left') %}
-            {% set items = items + ([('sprint_quali', secs, state_attr(A,'sprint_quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'sprint_seconds_left') %}
-            {% set items = items + ([('sprint', secs, state_attr(A,'sprint_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'quali_seconds_left') %}
-            {% set items = items + ([('qualifying', secs, state_attr(A,'quali_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set secs = state_attr(A,'race_seconds_left') %}
-            {% set items = items + ([('race', secs, state_attr(A,'race_local_start'))] if secs not in [none, 'unknown'] else []) %}
-            {% set future = items | selectattr(1, '>', 0) | sort(attribute=1) | list %}
-            {% set current = future[0] if future|length > 0 else none %}
-            {{ current[2] if current else 'unknown' }}
+        next_race_name: "{{ state_attr('sensor.f1_next_race','race_name') }}"
+        next_race_round: "{{ state_attr('sensor.f1_next_race','round') }}"
+        next_race_start: "{{ state_attr('sensor.f1_next_race','race_start_local') or null }}"
 
  # --- Next session (prefer sensor.f1_next_session if you have it) ---
         next_session_name: >
@@ -267,101 +334,173 @@
         about_to_start_window_seconds: 600
         
         fp1_status: >
-          {% set sec = state_attr(this.entity_id,'fp1_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'FP1' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
+            {% set sec   = state_attr('sensor.f1_sessions','fp1_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and cur == 'fp1' %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and cur == 'fp1' %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
         
         fp2_status: >
-          {% set sec = state_attr(this.entity_id,'fp2_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'FP2' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
-        
-        fp3_status: >
-          {% set sec = state_attr(this.entity_id,'fp3_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'FP3' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
-        
-        sprint_quali_status: >
-          {% set sec = state_attr(this.entity_id,'sprint_quali_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'Sprint Qualifying' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
-        
-        sprint_status: >
-          {% set sec = state_attr(this.entity_id,'sprint_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'Sprint' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
-        
-        quali_status: >
-          {% set sec = state_attr(this.entity_id,'quali_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'Qualifying' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
-        
-        race_status: >
-          {% set sec = state_attr(this.entity_id,'race_seconds_left') %}
-          {% set cur = state_attr(this.entity_id,'current_session_name') %}
-          {% set prog = states('sensor.f1_session_status') %}
-          {% set w = state_attr(this.entity_id,'about_to_start_window_seconds') | int(3600) %}
-          {% if sec in [none,'unknown','unavailable'] %}Not Scheduled
-          {% else %}
-            {% set s = sec|int(0) %}
-            {% if prog == 'live' and cur == 'Race' %}In Progress
-            {% elif s > 0 and s <= w %}Starting
-            {% elif s > 0 %}Scheduled Later
-            {% else %}Ended{% endif %}
-          {% endif %}
+            {% set sec   = state_attr('sensor.f1_sessions','fp2_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and cur == 'fp2' %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and cur == 'fp2' %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
 
         
+        fp3_status: >
+            {% set sec   = state_attr('sensor.f1_sessions','fp3_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and cur == 'fp3' %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and cur == 'fp3' %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
+        
+        sprint_quali_status: >
+            {% set sec   = state_attr('sensor.f1_sessions','sprint_quali_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            {% set is_sq  = cur in ['sprint quali','sprint qualifying'] %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and is_sq %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and is_sq %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
+        
+        sprint_status: >
+            {% set sec   = state_attr('sensor.f1_sessions','sprint_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and cur == 'sprint' %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and cur == 'sprint' %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
+
+        
+        quali_status: >
+            {% set sec   = state_attr('sensor.f1_sessions','quali_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %} {# start window in seconds (your value); e.g., 3600 for 1h #}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and cur == 'qualifying' %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and cur == 'qualifying' %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
+
+        
+        race_status: >
+            {% set sec   = state_attr('sensor.f1_sessions','race_seconds_left') %}
+            {% set s     = sec | int(0) %}
+            {% set cur   = (state_attr('sensor.f1','quarter') or '') | lower %}
+            {% set prog  = states('sensor.f1_session_status') %}
+            {% set w     = 6220000 %}
+            {% set post4h = 0 < (now().timestamp()|int - states.sensor.f1_last_race_results.last_changed.timestamp()|int) <= 14400 %}
+            
+            {% if sec in [none,'unknown','unavailable'] %}
+              Not Scheduled
+            {% elif post4h %}
+              Ended
+            {% elif prog in ['live','suspended','break'] and cur == 'race' %}
+              In Progress
+            {% elif prog in ['finalised','finished','ended'] and cur == 'race' %}
+              Ended
+            {% elif s <= 0 %}
+              Ended
+            {% elif s <= w %}
+              Starting
+            {% else %}
+              Scheduled Later
+            {% endif %}
