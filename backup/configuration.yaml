@@ -1,0 +1,163 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Services Include
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+template: !include_dir_merge_list custom_templates/
+
+# Emulated Hue Port Config
+emulated_hue:
+  listen_port: 80
+  expose_by_default: false
+  entities:
+    switch.start_my_car:
+      name: "Car Climate"
+      hidden: false
+    switch.pc_power:
+      name: "PC"
+      hidden: false
+    switch.print_progress:
+      name: "Print Progress"
+      hidden: false
+
+wake_on_lan:
+switch:
+  - platform: wake_on_lan
+    mac: E8-9C-25-6A-71-2D
+    name: "Wake PC"
+        
+# Todoist
+sensor:
+  # Printer Maintenance 
+  - name: 3d printing
+    platform: rest
+    method: GET
+    resource: 'https://api.todoist.com/sync/v9/projects/get_data'
+    params:
+      project_id: 6X5w284hH8cjPWwR
+    headers:
+      Authorization: !secret todoist_api_token
+    value_template: '{{ value_json[''project''][''id''] }}'
+    json_attributes:
+      - project
+      - items
+      - sections
+      - project_notes
+    scan_interval: 60
+    timeout: 10
+    
+  # Gym
+  - name: smart home
+    platform: rest
+    method: GET
+    resource: 'https://api.todoist.com/sync/v9/projects/get_data'
+    params:
+      project_id: 6Xgf83vMgPJqh9F6
+    headers:
+      Authorization: !secret todoist_api_token
+    value_template: '{{ value_json[''project''][''id''] }}'
+    json_attributes:
+      - project
+      - items
+      - sections
+      - project_notes
+    scan_interval: 60
+    timeout: 10
+    
+  # Important Task
+  - name: important task
+    platform: rest
+    method: GET
+    resource: 'https://api.todoist.com/sync/v9/projects/get_data'
+    params:
+      project_id: 6XhjhjCvMvGfF5cP
+    headers:
+      Authorization: !secret todoist_api_token
+    value_template: '{{ value_json[''project''][''id''] }}'
+    json_attributes:
+      - project
+      - items
+      - sections
+      - project_notes
+    scan_interval: 60
+    timeout: 10
+
+  # General
+  - name: general
+    platform: rest
+    method: GET
+    resource: 'https://api.todoist.com/sync/v9/projects/get_data'
+    params:
+      project_id: 6Xgf837qRVCvrHmX
+    headers:
+      Authorization: !secret todoist_api_token
+    value_template: '{{ value_json[''project''][''id''] }}'
+    json_attributes:
+      - project
+      - items
+      - sections
+      - project_notes
+    scan_interval: 60
+    timeout: 10
+
+  # Work
+  - name: work
+    platform: rest
+    method: GET
+    resource: 'https://api.todoist.com/sync/v9/projects/get_data'
+    params:
+      project_id: 6W7wCwGr2cWhRG7r
+    headers:
+      Authorization: !secret todoist_api_token
+    value_template: '{{ value_json[''project''][''id''] }}'
+    json_attributes:
+      - project
+      - items
+      - sections
+      - project_notes
+    scan_interval: 60
+    timeout: 10
+    
+# Fully Kiosk
+  # Printer Tablet Status
+  - name: Printer Tablet Status
+    platform: rest
+    json_attributes:
+      - batteryLevel
+      - isPlugged
+      - plugged
+      - batteryTemperature
+    resource: !secret printer_tablet_url
+    value_template: "{{ value_json.screenBrightness }}"
+    scan_interval: 30
+    timeout: 10
+    
+command_line:
+  - sensor:
+      name: label_colors
+      command: !secret todoist_cmd_with_api_token
+      value_template: >
+        {{ value_json.label_colors | length }}
+      json_attributes:
+        - label_colors
+      scan_interval: 200
+
+rest_command:
+#Todoist
+  todoist:
+    method: post
+    url: 'https://api.todoist.com/sync/v9/{{ url }}'
+    payload: '{{ payload }}'
+    headers:
+      Authorization: !secret todoist_api_token
+    content_type: 'application/x-www-form-urlencoded'
+
+#Fully Kiosk
+  kiosk_command:
+    url: !secret printer_tablet_command
