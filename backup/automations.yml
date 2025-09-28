@@ -1,0 +1,4337 @@
+- id: '1744832058385'
+  alias: Emilio Leave Home - A3
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.emilio_leave_grace_timer
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.emilio_leave_phase
+    state: 'on'
+  actions:
+  - action: light.turn_off
+    data: {}
+    target:
+      entity_id: light.all_lights
+  - action: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - media_player.fire_tv_10_0_0_187
+      - media_player.hisense_roku_tv_yn00g2068275
+  - action: media_player.media_stop
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - media_player.emilio_s_echo_show_5
+      - media_player.richelieu_echo_dot
+  mode: single
+- id: '1749070109426'
+  alias: Elantra Start Button
+  description: ''
+  triggers:
+  - event_data:
+      actionID: 7EC9426F-2CDD-47AB-BFA1-311D7A6A5242
+    event_type: ios.action_fired
+    trigger: event
+  conditions: []
+  actions:
+  - action: script.start_car_climate_control
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1749211992811'
+  alias: Auto LionzTV
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.fire_tv_10_0_0_187
+    from: 'off'
+  conditions: []
+  actions:
+  - if:
+    - condition: time
+      after: 07:00:00
+      before: '23:00:00'
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id:
+        - light.door_led_strip
+        - light.living_front_strip
+  - action: media_player.select_source
+    metadata: {}
+    data:
+      source: '  com.ipltv.ipltvbox'
+    target:
+      entity_id:
+      - media_player.fire_tv_10_0_0_187
+    enabled: false
+  mode: single
+- id: '1753055063972'
+  alias: Car Lock IOS
+  description: ''
+  triggers:
+  - event_data:
+      actionID: B12D85EF-4809-4A58-93C2-50535E8AFF74
+    event_type: ios.action_fired
+    trigger: event
+  conditions: []
+  actions:
+  - action: kia_uvo.lock
+    metadata: {}
+    data:
+      device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+  - action: kia_uvo.force_update
+    metadata: {}
+    data:
+      device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - action: kia_uvo.update
+    metadata: {}
+    data:
+      device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+  mode: single
+- id: '1753055505311'
+  alias: Door warning
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.elantra_door_status
+    to: Open
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  conditions:
+  - type: is_off
+    condition: device
+    device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+    entity_id: ffa02544c7f6ae5c67fdbb2c44a684dd
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  actions:
+  - device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: mobile_app
+    type: notify
+    message: Go back and close the door
+    title: Doors Still Open!
+  mode: single
+- id: '1753055822489'
+  alias: Car Stolen Warning
+  description: ''
+  triggers:
+  - device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+    domain: device_tracker
+    entity_id: 33dfa37ec62c3d49ecb53ab8b81d19d9
+    type: leaves
+    trigger: device
+    zone: zone.home
+  conditions:
+  - condition: device
+    device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: is_home
+  actions:
+  - device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: mobile_app
+    type: notify
+    title: Car Stolen!
+    message: Car left you behind
+  mode: single
+- id: '1753055879165'
+  alias: Car Auto Lock
+  description: ''
+  triggers:
+  - type: turned_off
+    device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+    entity_id: ffa02544c7f6ae5c67fdbb2c44a684dd
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  conditions:
+  - condition: device
+    device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+    domain: lock
+    entity_id: 20a03b6c620d57fccff56802e8076543
+    type: is_open
+  actions:
+  - action: kia_uvo.lock
+    metadata: {}
+    data:
+      device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+  mode: single
+- id: '1753467722873'
+  alias: Gaming Lights
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.pc_mode
+    to: Sim Racing
+  conditions:
+  - condition: state
+    entity_id: input_boolean.barca_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.f1_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: scene.turn_on
+    target:
+      entity_id: scene.gaming
+    data: {}
+  - alias: Volume Set
+    if:
+    - condition: time
+      after: '22:00:00'
+      before: 08:00:00
+    then:
+    - alias: Set Volume to 14 for low volume
+      action: mqtt.publish
+      metadata: {}
+      data:
+        topic: homeassistant/button/EMILIOS-PC/PCSetVolume/action
+        payload: '14'
+    else:
+    - action: mqtt.publish
+      metadata: {}
+      data:
+        topic: homeassistant/button/EMILIOS-PC/PCSetVolume/action
+        payload: '30'
+      alias: Set Volume to 30 for high volume
+  mode: single
+- id: '1753468510572'
+  alias: Normal Lights PC
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.pc_mode
+    to: General
+  conditions:
+  - condition: state
+    entity_id: sensor.emilios_pc_pcpowerstate
+    state: PowerOn
+  - condition: state
+    entity_id: input_boolean.barca_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.f1_mode
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+      rgb_color:
+      - 255
+      - 255
+      - 255
+    target:
+      entity_id:
+      - light.room
+      - light.desk_light
+  mode: single
+- id: '1753490709391'
+  alias: Vacation mode
+  description: ''
+  triggers:
+  - trigger: time_pattern
+    hours: '1'
+    minutes: '30'
+  conditions:
+  - condition: device
+    device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: is_not_home
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      label_id: govee
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      label_id: govee
+  mode: single
+- id: '1753758882949'
+  alias: Room auto on
+  description: ''
+  triggers:
+  - type: occupied
+    device_id: 3efb9f121f4552d0f8d96e45557db9ea
+    entity_id: 5225f8143d30e0d8db6607f5645a0089
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: device
+    type: is_off
+    device_id: e7e7e62b09d6aa6e68971125ceb626fd
+    entity_id: b064c9f9cdfdffe1e40a69fff5156bc6
+    domain: light
+  - condition: state
+    entity_id: input_boolean.emilio_auto_room
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.tv_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.pc_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.night_mode
+      state: 'on'
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        brightness_pct: 50
+        rgb_color:
+        - 255
+        - 255
+        - 255
+      target:
+        entity_id:
+        - light.bedroom_lights
+    else:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        brightness_pct: 100
+        rgb_color:
+        - 255
+        - 255
+        - 255
+      target:
+        entity_id:
+        - light.desk_light
+        - light.room
+  - action: media_player.media_play
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  mode: single
+- id: '1753758988399'
+  alias: Room auto off
+  description: ''
+  triggers:
+  - type: not_occupied
+    device_id: 3efb9f121f4552d0f8d96e45557db9ea
+    entity_id: 5225f8143d30e0d8db6607f5645a0089
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  conditions:
+  - condition: state
+    entity_id: input_boolean.emilio_auto_room
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.pc_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.tv_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.bedroom_lights
+  - action: media_player.media_pause
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  mode: single
+- id: '1754226377566'
+  alias: F1 Mode
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 300
+    above: 10
+    attribute: sprint_quali_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 300
+    above: 10
+    attribute: sprint_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 300
+    above: 10
+    attribute: quali_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 300
+    above: 10
+    attribute: race_seconds_left
+  conditions:
+  - condition: state
+    entity_id: input_boolean.f1_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: script.f1_play_start
+    metadata: {}
+    data: {}
+  mode: single
+- id: 272d3766-7ef6-4150-a16c-17dfebd682be
+  alias: Force HASS.Agent sensors update after HA restarts
+  description: ''
+  triggers:
+  - event: start
+    trigger: homeassistant
+  actions:
+  - target:
+      entity_id: button.earth_publishallsensors
+    action: button.press
+- id: '1754285022126'
+  alias: Barca Play
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.barca_laliga_time_left
+    attribute: seconds_left
+    below: 300
+    above: 10
+    id: liga
+  - trigger: numeric_state
+    entity_id:
+    - sensor.barca_cl_time_left
+    attribute: seconds_left
+    below: 300
+    above: 10
+    id: cl
+  conditions:
+  - condition: state
+    entity_id: input_boolean.barca_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - liga
+      sequence:
+      - action: script.barca_play_start
+        metadata: {}
+        data:
+          oppo: sensor.barca_liga
+    - conditions:
+      - condition: trigger
+        id:
+        - cl
+      sequence:
+      - action: script.barca_play_start
+        metadata: {}
+        data:
+          oppo: sensor.barca_cl
+  - action: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.3
+    target:
+      entity_id: media_player.emilio_s_fire_tv
+  mode: single
+- id: '1754527937169'
+  alias: Living Room Strips Linked
+  description: ''
+  use_blueprint:
+    path: alexdelprete/ha-blueprint-linked-entities.yaml
+    input:
+      linked_entity:
+      - light.door_led_strip
+      - light.living_front_strip
+      delay_miliseconds: 0
+- id: '1754527991253'
+  alias: Living bulb Link
+  description: ''
+  use_blueprint:
+    path: alexdelprete/ha-blueprint-linked-entities.yaml
+    input:
+      delay_miliseconds: 0
+      linked_entity:
+      - light.living_salon_socket_1
+      - light.living_door_bulb
+- id: '1754674502799'
+  alias: Auto Emilio Home Arrival
+  description: Turns on multiple lights and a remote when Emilio enters the home zone,
+    if a specific light is off.
+  triggers:
+  - trigger: zone
+    entity_id: device_tracker.emilios_16_pro
+    zone: zone.home
+    event: enter
+  conditions: []
+  actions:
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: media_player.fire_tv_10_0_0_187
+        state: 'off'
+      - condition: time
+        after: 08:00:00
+        before: '22:15:00'
+      - condition: device
+        type: is_off
+        device_id: ba340817b6cec5d3e607529ee03af84e
+        entity_id: e881e6a6fec9950e8ca38f38e2aed972
+        domain: light
+    then:
+    - type: turn_on
+      device_id: d6a400c0c07ffc826481c4eac7c63cba
+      entity_id: 0ab6ac1e2cecc1653d18137cf22995ce
+      domain: remote
+    - action: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.living_room_lights
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.home
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.emilio_leave_phase
+  - action: automation.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: automation.emilio_enter_room_intro
+    enabled: true
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.emilio_auto_room
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.barca_mode
+        state: 'on'
+      sequence:
+      - action: script.barca_play_start
+        metadata: {}
+        data:
+          oppo: sensor.barca_liga
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.f1_mode
+        state: 'on'
+      sequence:
+      - action: script.f1_play_start
+        metadata: {}
+        data: {}
+  mode: single
+- id: '1754716036998'
+  alias: Auto Bambu Print Failure Check
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.a1_hms_errors
+    to: 'on'
+    from: 'off'
+  conditions:
+  - condition: state
+    entity_id: sensor.a1_print_status
+    state: running
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 15
+      milliseconds: 0
+  - action: llmvision.image_analyzer
+    metadata: {}
+    data:
+      include_filename: false
+      target_width: 1280
+      max_tokens: 100
+      generate_title: false
+      expose_images: false
+      provider: 01K21ADXZSYZ2WSN2W8BS7FNW8
+      model: gemini-2.5-flash
+      message: 'Analyze this snapshot of my Bambu Lab A1 3D printer and determine
+        if the current print shows any signs of failure. Focus on identifying common
+        issues such as: filament spaghetti or stringing, layer shifting or misalignment,
+        bed adhesion problems (print detaching or lifting at corners), warped parts,
+        excessive blobs or under-extrusion, nozzle clogging, or obvious missing layers.
+        Pay attention to both the print surface and the surrounding print area for
+        signs of debris or failed extrusion. Ignore unrelated objects in the background.
+        Respond with either ''No failure detected'' if the print appears normal, or
+        describe the specific failure(s) detected and their likely cause.'
+      image_entity:
+      - camera.a1_camera
+    response_variable: response
+    enabled: true
+  - action: notify.mobile_app_emilios_16_pro
+    metadata: {}
+    data:
+      message: Printer failed due to {{ response.response_text }}
+  mode: single
+- id: '1754795557757'
+  alias: Emilio Leave Home - A1
+  description: Turns on a grace timer when Emilio leaves home.
+  triggers:
+  - trigger: zone
+    entity_id: device_tracker.emilios_16_pro
+    zone: zone.home
+    event: leave
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.emilio_leave_phase
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.home
+      - input_boolean.emilio_auto_room
+  - action: timer.start
+    metadata: {}
+    data: {}
+    target:
+      entity_id: timer.emilio_leave_grace_timer
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.bedroom_lights
+  - type: turn_off
+    device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    entity_id: de9e924bf5026009c4c050d06d039ebd
+    domain: remote
+  - type: turn_off
+    device_id: 8b882d76a068560ed419daeb6c22f7be
+    entity_id: b859344e35867bbadacf8c662b36cb57
+    domain: remote
+  mode: single
+- id: '1754795715210'
+  alias: Emilio Leave Home - A2
+  description: Cancels the "away grace period" timer if motion is detected in the
+    living room or Emilio arrives home.
+  triggers:
+  - entity_id:
+    - binary_sensor.living_room_presence
+    trigger: state
+    to: 'on'
+  - type: occupied
+    device_id: 4457fc42c722d792879f9899dca3273c
+    entity_id: ca01f20493715584c537507d7a908fd1
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.emilio_leave_phase
+    state: 'on'
+  actions:
+  - target:
+      entity_id: timer.emilio_leave_grace_timer
+    action: timer.cancel
+    data: {}
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.emilio_leave_phase
+  mode: single
+- id: '1754835133615'
+  alias: Wake Mode - A1
+  description: Sets the Bambu Lab camera to morning brief mode when motion is detected.
+    This allows for clear morning briefing detection
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.bambu_cam_cell_motion_detection
+    to: 'on'
+    id: cam
+    enabled: false
+  - trigger: state
+    entity_id:
+    - input_boolean.sleep_mode
+    to: 'off'
+    from: 'on'
+    enabled: false
+    id: sleep mode
+  - domain: mqtt
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    type: action
+    subtype: 1_long_release
+    trigger: device
+    id: long
+  - domain: mqtt
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    type: action
+    subtype: 1_short_release
+    trigger: device
+    id: short
+  - trigger: state
+    entity_id:
+    - sensor.emilios_16_pro_battery_state
+    to: charging
+    enabled: false
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+    enabled: true
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: time
+    after: 06:00:00
+    before: '11:00:00'
+    weekday:
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+    - mon
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.sleep_mode
+  - action: media_player.media_stop
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - action: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 1
+    target:
+      entity_id: media_player.home_assistant_tablet
+  - action: script.play_jarvis_sound
+    metadata: {}
+    data:
+      name: listening_on_6
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: trigger
+          id:
+          - long
+        - condition: state
+          entity_id: input_boolean.in_meeting
+          state: 'on'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.wake_active
+          - input_boolean.wake_phase_1
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.emilio_auto_room
+    - conditions:
+      - condition: trigger
+        id:
+        - short
+        - sleep mode
+      sequence:
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.4
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+      - action: script.wake_briefing
+        metadata: {}
+        data: {}
+        enabled: true
+      - action: script.wake_music
+        metadata: {}
+        data: {}
+      - action: timer.start
+        metadata: {}
+        data:
+          duration: 00:10:00
+        target:
+          entity_id: timer.wake_phase
+    - conditions:
+      - condition: trigger
+        id:
+        - cam
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 255
+          - 255
+          brightness_pct: 100
+        target:
+          entity_id:
+          - light.room
+          - light.desk_light
+          - light.emilio_bed
+        enabled: true
+      - action: calendar.get_events
+        metadata: {}
+        data:
+          duration:
+            hours: 13
+            minutes: 0
+            seconds: 0
+        target:
+          entity_id: calendar.todoist_2
+        response_variable: todoist
+      - action: google_generative_ai_conversation.generate_content
+        metadata: {}
+        data:
+          prompt: "You are J.A.R.V.I.S. from Marvel’s Iron Man films — Tony Stark’s
+            sophisticated AI assistant. \nYour style is elegant, witty, precise, and
+            slightly playful. \nYou flatter the user, provide information with charm,
+            maintain a cinematic tone, and make the sentences concise and the paragraphs
+            flow well, in order to be clear.\n\nTasks are to generate a short and
+            concise morning briefing for Emilio before he starts preparing for work
+            using the date below.\nCheck rules for each topic and omit them gracefully
+            if not applicable.\nDo not list raw numbers without context; phrase them
+            as Jarvis would.\nDo not mention code.\nStart with a polite greeting and
+            elegantly end in a Jarvis tone.\n\nTone Rules =\n- Structure your response
+            like J.A.R.V.I.S. would in the movies. \n- Mix formality with subtle humor
+            and admiration. \n- Avoid sounding like a plain announcer. \n- Keep it
+            cinematic, as if voiced in a Marvel film.\n\nUse the following sections,
+            rules and information.\n\nTime and Date Now = {{ now().astimezone().strftime('%a
+            %b %-d, %Y at %I:%M %p') }}\n\nWeather Details. Make it brief and only
+            mention extra details if needed. Mandatory details are Temperature, and
+            condition.\nSummary is '{{states('sensor.pirateweather_summary')}}' and
+            {{states('sensor.fog_status')}}.\nToday's Snow Accumulation is {{states('sensor.pirateweather_current_day_snow_accumulation')}}
+            cm.\n{{ states('weather.pirateweather') }} weather with temperature of
+            {{ states('sensor.pirateweather_temperature') }} °C and Wind Speeds of
+            {{ states('sensor.pirateweather_wind_speed') }} km/hr.\n{{states('sensor.pirateweather_minutely_summary')}}
+            and {{states('sensor.pirateweather_hourly_summary')}}\n{%- if states('sensor.pirateweather_precip')
+            %}\nNo precipitation for today!\n{%- else -%}\nPrecipitation type is {{states('sensor.pirateweather_precip')}}
+            with {{states('sensor.pirateweather_precip_probability')}}% and {{states('sensor.pirateweather_precip_intensity')}}
+            mm/hr.\n{% endif %}\n\nCalendar. Only include today. If it's none, that
+            means no event is available.\n'{{ state_attr('calendar.important_dates','message')
+            }}' at {{ state_attr('calendar.important_dates','start_time') }}.\n'{{
+            state_attr('calendar.meetings','message') }}' at {{ state_attr('calendar.meetings','start_time')
+            }}.\n'{{ state_attr('calendar.general','message') }}'at {{ state_attr('calendar.general','start_time')
+            }}.\n\nTo-do list Tasks\nRules are listed below.\nMention all tasks overdue
+            and due today, joined naturally with commas or\n“and.”\nUse project groupings
+            as rendered by the sensor.\nOrder them from highest to lowest priority
+            (sometimes no priority, so put at the end of the task list).\nKeep wording
+            elegant; turn counts into context (e.g., “a few items\nawaiting your attention”).\nIgnore
+            All tasks for French Course.\n\n{% if (state_attr('sensor.todoist_today_count','today_count')
+            | int(0)) > 0 %}\n  {{ state_attr('sensor.todoist_today_count','today_count')
+            }} tasks today listed below.\n  general tasks from get.event action (includes
+            inbox tasks as well. Dont repeat the same tasks. \n  {{ todoist }}\n  tasks
+            from todoist projects.\n  {{ state_attr('sensor.todoist_today_count','projects_today_text')
+            }}\n{% else %}\n  No tasks today.\n{% endif %}\n\n{% if (state_attr('sensor.todoist_today_count','overdue_count')
+            | int(0)) > 0 %}\n  {{ state_attr('sensor.todoist_today_count','overdue_count')
+            }} overdue tasks are below.\n  {{ state_attr('sensor.todoist_today_count','projects_overdue_text')
+            }}\n{% else %}\n  No overdue tasks.\n{% endif %}\n\nCar\nRules are below.\nDont
+            mention tire pressure, 12V battery, or car safety if battery is above
+            60%, tire pressure is ok, or car is safe.\nOnly report fuel level and
+            range if it’s low and needs refueling (less than 90 km).\n\n{{ states('sensor.elantra_fuel_level')
+            }}% fuel level outputing {{ states('sensor.elantra_fuel_driving_range')
+            | int }} km fuel range.\nTire pressure warning sensor is {{ states('binary_sensor.elantra_tire_pressure_all')
+            }}.\n12V car battery level is at {{ states('sensor.elantra_car_battery_level')
+            }}%.\nLocation of the car is at {{ states('device_tracker.elantra_location')
+            }} and doors are {{ states('sensor.elantra_door_status') }} and {{ states('lock.elantra_door_lock')
+            }}.\n\nTravel Time to Work. Mention the time i need to start driving based
+            on current traffic time and work start time. Use HH:MM format\n\nTarget
+            arrival time: 07:45 am\nEstimated Travel Time is {{ states('sensor.work_travel_time')}}..
+            If the travel time is more than 28 min, warn Emilio. If travel time is
+            unavailable, assume 30 minutes. If it is snowing, mention that i might
+            need to remove snow around the car before driving."
+        response_variable: answer
+      - action: notify.alexa_media_emilio_s_echo_show_5
+        metadata: {}
+        data:
+          message: '{{ answer.text | replace(''\n'', '' '') | trim }}'
+        enabled: true
+      - wait_template: '{{ states(''media_player.emilio_s_echo_show_5'') in [''playing'',''buffering'']
+          }}'
+        timeout: 00:00:06
+        continue_on_timeout: true
+      - wait_template: '{{ states(''media_player.emilio_s_echo_show_5'') not in [''playing'',''buffering'']
+          }}'
+        timeout: 00:01:30
+        continue_on_timeout: true
+      - action: script.wake_music
+        metadata: {}
+        data: {}
+      - wait_template: '{{ is_state(''binary_sensor.room_sensor_occupancy'',''off'')}}'
+        continue_on_timeout: true
+        timeout: 00:02:00
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.wake_phase_1
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.f1_mode
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.barca_mode
+          state: 'on'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.wake_active
+          - input_boolean.wake_phase_1
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.emilio_auto_room
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_boolean.barca_mode
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.tv_mode
+            state: 'off'
+          sequence:
+          - action: media_player.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id:
+              - media_player.bedroom_fire_tv
+              - media_player.bedroom_tv
+              - media_player.bedroom_tv_2
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 12
+              milliseconds: 0
+          - action: script.navigate_to_lionztv
+            metadata: {}
+            data:
+              channel: bein1
+        - conditions:
+          - condition: state
+            entity_id: input_boolean.f1_mode
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.tv_mode
+            state: 'off'
+          sequence:
+          - action: media_player.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id:
+              - media_player.bedroom_fire_tv
+              - media_player.bedroom_tv
+              - media_player.bedroom_tv_2
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 12
+              milliseconds: 0
+          - action: script.navigate_to_lionztv
+            metadata: {}
+            data:
+              channel: f1
+        enabled: true
+      alias: Watch Mode Quick Flip
+    - conditions:
+      - condition: time
+        weekday:
+        - mon
+        - fri
+        - sat
+        - sun
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 255
+          - 255
+          brightness_pct: 100
+        target:
+          entity_id:
+          - light.room
+          - light.desk_light
+          - light.emilio_bed
+        enabled: true
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.4
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+      - action: script.wake_briefing
+        metadata: {}
+        data: {}
+        enabled: true
+      - action: script.wake_music
+        metadata: {}
+        data: {}
+      - action: timer.start
+        metadata: {}
+        data:
+          duration: 00:10:00
+        target:
+          entity_id: timer.wake_phase
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.emilio_auto_room
+  mode: single
+- id: '1754882727073'
+  alias: Turn on Lights on Motion When Emilio Away
+  description: Turns on all lights when motion is detected if the home lights are
+    currently off.
+  triggers:
+  - type: motion
+    device_id: fbd869f335ebda1c1459fb4db3786c1b
+    entity_id: f35e04d521d349664bb3bc5241069c02
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: sensor.home_lights_status
+    state: 'Off'
+  - condition: state
+    entity_id: input_boolean.emilio_leave_phase
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'off'
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.living_salon_socket_1
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.wiz_tunable_white_6b88ee
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.emilio_leave_phase
+  mode: single
+- id: '1754883053287'
+  alias: Carplay Audio Output Music
+  description: "Plays the 'Good Vibes 2025 \U0001F31E Summer Playlist' on Spotify
+    when Emilio's 16 Pro audio output changes to Carplay."
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.car_mode
+    to: 'on'
+    enabled: true
+  - trigger: state
+    entity_id:
+    - sensor.emilios_16_pro_audio_output
+    to: CarPlay
+    enabled: false
+  - trigger: state
+    entity_id:
+    - sensor.emilios_16_pro_activity
+    to: Automotive
+    enabled: false
+  conditions: []
+  actions:
+  - action: notify.mobile_app_emilios_16_pro
+    metadata: {}
+    data:
+      message: Carplay activated
+  - action: media_player.media_stop
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  - action: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.gym
+        state: 'on'
+      sequence:
+      - action: script.play_random_playlist
+        metadata: {}
+        data:
+          category: workout
+    - conditions:
+      - condition: time
+        after: 05:00:00
+        before: '10:00:00'
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+      sequence:
+      - action: script.play_random_playlist
+        metadata: {}
+        data:
+          category: morning
+      alias: 'morning '
+    - conditions:
+      - condition: time
+        after: '20:00:00'
+        before: 03:00:00
+      sequence:
+      - action: script.play_random_playlist
+        metadata: {}
+        data:
+          category: chill
+      alias: chill
+    - conditions: []
+      sequence:
+      - action: script.play_random_playlist
+        metadata: {}
+        data:
+          category: fun
+      alias: fun
+  mode: single
+- id: '1755367980547'
+  alias: Barca Score Update
+  description: Triggers when Barca's team score is updated in either Liga or Champions
+    League.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.barca_liga
+    - sensor.barca_cl
+    attribute: team_score
+  - trigger: state
+    entity_id:
+    - sensor.barca_liga
+    - sensor.barca_cl
+    attribute: opponent_score
+  conditions:
+  - condition: template
+    value_template: '{{ trigger.to_state.state == ''IN'' }}'
+  - condition: template
+    value_template: '{% set last = trigger.from_state %} {{ last is not none and last.state
+      == ''IN'' }}
+
+      '
+  - condition: template
+    value_template: "      {% set last = this.attributes.last_triggered %}\n      {{
+      last is none or (as_timestamp(now()) - as_timestamp(last)) > 15 }}"
+  - condition: state
+    entity_id: input_boolean.barca_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - variables:
+      team: '{{ trigger.to_state.attributes.team | default(''Barça'', true) }}'
+      opp: '{{ trigger.to_state.attributes.opponent | default(''Opponent'', true)
+        }}'
+      attr: '{{ trigger.attribute }}'
+      from_score: '{{ trigger.from_state.attributes.get(trigger.attribute) | int(-1)
+        if trigger.from_state else -1 }}'
+      to_score: '{{ trigger.to_state.attributes.get(trigger.attribute)   | int(-1)
+        if trigger.to_state   else -1 }}'
+      us: '{{ trigger.to_state.attributes.team_score | int(0) }}'
+      them: '{{ trigger.to_state.attributes.opponent_score | int(0) }}'
+  - action: script.barca_score_updater
+    metadata: {}
+    data:
+      team: '{{ team }}'
+      opp: '{{ opp }}'
+      attr: '{{ attr }}'
+      from_score: '{{ from_score }}'
+      to_score: '{{ to_score }}'
+      us: '{{ us }}'
+      them: '{{ them }}'
+  mode: restart
+- id: '1755462784732'
+  alias: Tablet Low Battery Auto
+  description: when the Home Assistant tablet battery is below 30% and turns on a
+    usb switch.
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.home_assistant_tablet_battery
+    below: 60
+  conditions: []
+  actions:
+  - type: turn_on
+    device_id: 7563d0931507cb735c89388602f5fde3
+    entity_id: 30c5932952dd94174c70b8c9e37fa464
+    domain: switch
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - action: script.play_jarvis_sound
+      data:
+        name: battery_charging_0
+      enabled: true
+    enabled: false
+  mode: single
+- id: '1755462862415'
+  alias: Tablet high Battery Auto
+  description: Notifies turns off a usb switch.
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.home_assistant_tablet_battery
+    above: 80
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: 7563d0931507cb735c89388602f5fde3
+    entity_id: 30c5932952dd94174c70b8c9e37fa464
+    domain: switch
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+    then:
+    - action: script.play_jarvis_sound
+      data:
+        name: battery_charged
+      enabled: true
+    enabled: false
+  mode: single
+- id: '1755469541206'
+  alias: Bambu Printer Start-up
+  description: Plays media on the Home Assistant tablet when a specific switch is
+    turned on.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.a1_online
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.a1_online.last_changed))
+      > 600 }}'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: script.play_jarvis_sound
+    metadata: {}
+    data:
+      name: intro_2
+  mode: single
+- id: '1755469635253'
+  alias: Bambu Printer Shutdown
+  description: Plays media on the Home Assistant tablet when a specific switch is
+    turned on.
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.a1_switch
+    to: 'off'
+    from: 'on'
+  conditions: []
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.printer_mode
+  - device_id: c37fc1a77194394cfb544b2000da0c46
+    domain: select
+    entity_id: 9e18334a2d42dc9c0bf3a413811d41d4
+    type: select_option
+    option: Wake Mode
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.work
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.home
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - action: script.play_jarvis_sound
+      metadata: {}
+      data:
+        name: self_destruct_1
+  mode: single
+- id: '1755487113049'
+  alias: Bambu Printer Prepare
+  description: Plays a sound when the Bambu printer is in the prepare state.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.a1_print_status
+    to: prepare
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.printer_mode
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.work
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.home
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - action: script.play_jarvis_sound
+      metadata: {}
+      data:
+        name: print_prepare
+  mode: single
+- id: '1755488911211'
+  alias: Bambu Printer Running Sound
+  description: Plays a sound when the Bambu printer is in the running state.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.a1_print_status
+    to: running
+  conditions: []
+  actions:
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.work
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.home
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - action: script.play_jarvis_sound
+      metadata: {}
+      data:
+        name: print_start
+  - device_id: c37fc1a77194394cfb544b2000da0c46
+    domain: select
+    entity_id: 9e18334a2d42dc9c0bf3a413811d41d4
+    type: select_option
+    option: Printer
+  - action: automation.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: automation.bambu_printer_finish_sound
+  mode: single
+- id: '1755489181329'
+  alias: Bambu Printer Error Sound
+  description: Plays a sound when the Bambu printer is in the error state.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.a1_print_status
+    to: pause
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.a1_hms_errors
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+      effect: Siren
+    target:
+      entity_id:
+      - light.room
+      - light.desk_light
+  - action: script.play_jarvis_sound
+    metadata: {}
+    data:
+      name: print_error
+  - action: automation.turn_off
+    metadata: {}
+    data:
+      stop_actions: false
+    target:
+      entity_id: automation.bambu_printer_finish_sound
+  - action: notify.alexa_media_emilio_s_echo_show_5
+    metadata: {}
+    data:
+      message: '{{ state_attr(''binary_sensor.a1_hms_errors'', ''1-error'') }}'
+  - wait_template: '{{ is_state(''sensor.a1_print_status'', ''running'') or is_state(''sensor.a1_print_status'',
+      ''idle'') or is_state(''sensor.a1_print_status'', ''finish'') or is_state(''sensor.a1_print_status'',
+      ''failed'')}}'
+    continue_on_timeout: true
+    timeout: 00:01:00
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_step_pct: 100
+      rgb_color:
+      - 255
+      - 255
+      - 255
+    target:
+      entity_id:
+      - light.desk_light
+      - light.room
+  mode: restart
+- id: '1755556244234'
+  alias: Emilio enter room intro
+  description: Plays the Jarvis intro sound when motion is detected and the user is
+    home.
+  triggers:
+  - type: occupied
+    device_id: 3efb9f121f4552d0f8d96e45557db9ea
+    entity_id: 5225f8143d30e0d8db6607f5645a0089
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: device
+    device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: is_home
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.emilio_auto_room
+  - action: automation.turn_off
+    metadata: {}
+    data:
+      stop_actions: false
+    target:
+      entity_id: automation.emilio_enter_room_intro
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.f1_mode
+        state: 'off'
+      - condition: time
+        after: 09:00:00
+        before: '23:00:00'
+      - condition: state
+        entity_id: input_boolean.barca_mode
+        state: 'off'
+    then:
+    - action: script.emilio_intro_room
+      metadata: {}
+      data:
+        name: jarvis_intro
+      enabled: true
+  mode: single
+- id: '1755626538872'
+  alias: Commute • Start Car
+  description: Notifies user to start the car at the calculated departure time and
+    includes travel details.
+  triggers:
+  - trigger: time
+    at:
+      entity_id: input_datetime.alarm
+      offset: 00:20:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  - trigger: time
+    at: '17:10:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  conditions:
+  - condition: state
+    entity_id: input_boolean.office
+    state: 'on'
+  actions:
+  - action: script.start_car_climate_control
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1755670643659'
+  alias: Alarm Activated
+  description: Triggers the alarm and starts a 3-minute grace timer for Emilio when
+    the work wake-up time is reached.
+  triggers:
+  - trigger: time
+    at: input_datetime.alarm
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: remote
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: media_player.media_stop
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - media_player.emilio_s_echo_show_5
+      - media_player.home_assistant_tablet
+  - action: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.5
+    target:
+      entity_id: media_player.home_assistant_tablet
+  - repeat:
+      while:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.sleep_mode
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.alarm_cam_detected
+          state: 'off'
+          enabled: false
+        - condition: template
+          value_template: '{{ repeat.index <= 10 }}'
+      sequence:
+      - alias: Wake Speak
+        choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 1 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_wake_5
+          alias: Wake 1
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 2 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_wake_4
+          alias: Wake 2
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 3 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_snooze_6
+          alias: Wake 3
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 4 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_snooze_3
+          alias: Wake 4
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 5 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_snooze_2
+          alias: Wake 5
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 6 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_snooze_7
+          alias: Wake 6
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 7 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_snooze_3
+          alias: Wake 7
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 8 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_wake_2_s
+          alias: Wake 8
+        - conditions:
+          - condition: template
+            value_template: '{{ repeat.index == 9 }}'
+          sequence:
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_snooze_2
+          - action: light.turn_on
+            metadata: {}
+            data:
+              rgb_color:
+              - 126
+              - 27
+              - 27
+              brightness_pct: 50
+            target:
+              entity_id:
+              - light.desk_light
+              - light.emilio_bed
+          alias: Wake 9
+        - conditions: []
+          sequence:
+          - action: light.turn_on
+            metadata: {}
+            data:
+              brightness_pct: 100
+              rgb_color:
+              - 31
+              - 81
+              - 127
+            target:
+              entity_id: light.bedroom_lights
+          - action: script.play_jarvis_sound
+            metadata: {}
+            data:
+              name: clock_alarm_wake_2_s
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 10
+              milliseconds: 0
+          - action: script.jarvis_high_tts
+            metadata: {}
+            data:
+              text: 'You need to wake up now. It is {{ now().strftime("%H:%M") }}.
+
+                '
+          alias: Wake 10
+      - wait_template: '{{ is_state(''binary_sensor.bambu_cam_cell_motion_detection'',''on'')
+          or is_state(''input_boolean.sleep_mode'',''off'') }}'
+        continue_on_timeout: true
+        timeout: 00:01:00
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: "{{ state_attr('media_player.home_assistant_tablet','volume_level')|float
+            + 0.1 if\n   state_attr('media_player.home_assistant_tablet','volume_level')|float
+            <= 0.9 else 1 \n}}"
+        target:
+          entity_id: media_player.home_assistant_tablet
+  - alias: turns off sleep mode
+    if:
+    - condition: state
+      entity_id: input_boolean.sleep_mode
+      state: 'on'
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        brightness_pct: 100
+      target:
+        entity_id: light.bedroom_lights
+    - action: input_boolean.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.sleep_mode
+      enabled: false
+  mode: restart
+- id: '1755674879635'
+  alias: Car Lock at 2AM
+  description: Locks the car automatically at 2 AM if the car is home.
+  triggers:
+  - trigger: time
+    at: 02:00:00
+  conditions:
+  - condition: device
+    device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: is_home
+  actions:
+  - action: kia_uvo.lock
+    metadata: {}
+    data:
+      device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+  mode: single
+- id: '1755702350493'
+  alias: Wake Mode - A2
+  description: Turns on room lights to full white when the wake phase timer finishes.
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.wake_phase
+    id: timer
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      rgb_color:
+      - 255
+      - 255
+      - 255
+      brightness_pct: 100
+    target:
+      entity_id:
+      - light.room
+      - light.desk_light
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.emilio_auto_room
+  - action: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.15
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  mode: single
+- id: '1755709722348'
+  alias: Wake PC
+  description: Plays a Jarvis intro sound when the PC wakes up.
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.wake_pc
+    to: 'on'
+    from: 'off'
+    id: wake
+  - trigger: state
+    entity_id:
+    - sensor.emilios_pc_pcpowerstate
+    to: PowerOn
+    id: hass
+  conditions:
+  - condition: state
+    entity_id: input_boolean.pc_mode
+    state: 'off'
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.pc_mode
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.barca_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.f1_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - choose:
+      - conditions:
+        - condition: trigger
+          id:
+          - wake
+        sequence:
+        - action: script.play_jarvis_sound
+          metadata: {}
+          data:
+            name: jarvis_intro
+    - if:
+      - condition: state
+        entity_id: input_boolean.night_mode
+        state: 'on'
+      then:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 50
+          rgb_color:
+          - 163
+          - 57
+          - 0
+        target:
+          entity_id:
+          - light.bedroom_lights
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.1
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+      else:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+          rgb_color:
+          - 255
+          - 255
+          - 255
+        target:
+          entity_id:
+          - light.desk_light
+          - light.room
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.2
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+    - action: media_player.select_source
+      metadata: {}
+      data:
+        source: Emilio's Echo Show 5
+      target:
+        entity_id: media_player.spotify_emilio_maalouf
+    - action: media_player.play_media
+      metadata: {}
+      data:
+        media:
+          media_content_id: spotify:playlist:6IKQrtMc4c00YzONcUt7QH
+          media_content_type: spotify://playlist
+          metadata:
+            title: "Chill  Vibes 2025 \U0001F319"
+            thumbnail: https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da842128d1e7b21f4f57fa1d0174
+            media_class: playlist
+            children_media_class: track
+            navigateIds:
+            - {}
+            - media_content_type: spotify://current_user_playlists
+              media_content_id: current_user_playlists
+            browse_entity_id: media_player.spotify_emilio_maalouf
+      target:
+        entity_id: media_player.spotify_emilio_maalouf
+  mode: single
+- id: '1755710169802'
+  alias: PC Sleep Sound
+  description: Plays a sound when Emilio's PC monitor goes unavailable after being
+    on.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.emilios_pc_pcpowerstate
+    to: unavailable
+    from:
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+      sequence:
+      - action: script.play_jarvis_sound
+        metadata: {}
+        data:
+          name: sleep_2
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.pc_mode
+  - if:
+    - condition: state
+      entity_id: input_boolean.tv_mode
+      state: 'off'
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        rgb_color:
+        - 255
+        - 255
+        - 255
+      target:
+        entity_id:
+        - light.room
+        - light.desk_light
+        - light.bedroom_lights
+  mode: single
+- id: '1755754052076'
+  alias: AI Auto Sleep - A2
+  description: Triggers the AI sleep routine when the sleep timer finishes.
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.sleep_1
+  - domain: mqtt
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    type: action
+    subtype: 2_short_release
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: script.ai_sleep_a2
+    metadata: {}
+    data: {}
+  - action: timer.start
+    metadata: {}
+    data:
+      duration: 00:15:00
+    target:
+      entity_id: timer.sleep_2
+  mode: single
+- id: '1755754095121'
+  alias: AI Auto Sleep - A3
+  description: Triggers the AI sleep routine when the sleep timer finishes.
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.sleep_2
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: script.ai_sleep_a3
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1755928630735'
+  alias: Bambu Printer Finish Sound
+  description: Plays a sound when the Bambu printer is in the running state.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.a1_print_status
+    to: finish
+  conditions: []
+  actions:
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.work
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.home
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - action: script.play_jarvis_sound
+      metadata: {}
+      data:
+        name: print_end
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.printer_mode
+  - action: automation.turn_off
+    metadata: {}
+    data:
+      stop_actions: false
+    target:
+      entity_id: automation.bambu_printer_finish_sound
+  mode: single
+- id: '1756007309594'
+  alias: Bambu Printer Halfway Done Notification
+  description: Notifies when the Bambu printer progress is over 50% and sleep mode
+    is off.
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.a1_print_progress
+    above: 49
+    id: Half
+    below: 51
+  - trigger: numeric_state
+    entity_id:
+    - sensor.a1_print_progress
+    above: 85
+    id: Finish on
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Half
+      sequence:
+      - if:
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: input_boolean.work
+            state: 'off'
+          - condition: state
+            entity_id: input_boolean.home
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.sleep_mode
+            state: 'off'
+          - condition: state
+            entity_id: input_boolean.in_meeting
+            state: 'off'
+        then:
+        - action: script.jarvis_high_tts
+          metadata: {}
+          data:
+            text: Printer is half way complete, Sir!
+    - conditions:
+      - condition: trigger
+        id:
+        - Finish on
+      sequence:
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: true
+          media_player_entity_id: media_player.home_assistant_tablet
+          message: Spoolman helpers updated successfully! Spool {{ states('input_number.job_spool_id')
+            | int }} is in slot {{ states('input_number.job_slot') | int }} using
+            {{ states('input_number.job_used_mm_start') }} grams.
+          options:
+            voice: jarvis-high
+        target:
+          entity_id:
+          - tts.piper
+        enabled: false
+      - action: script.update_spool_weights_spoolman
+        metadata: {}
+        data: {}
+  mode: single
+- id: '1756450738684'
+  alias: F1 Status
+  description: Turns on F1 status effects in bedroom when F1 status changes
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.f1_track_status
+    to: VSC
+    id: vsc
+  - trigger: state
+    entity_id:
+    - sensor.f1_session_status
+    enabled: true
+    id: finished
+    to: finished
+  - trigger: state
+    entity_id:
+    - sensor.f1_session_status
+    id: Quali Live
+    to: live
+    from: break
+    enabled: true
+  - trigger: state
+    entity_id:
+    - sensor.f1_session_status
+    id: Live
+    to: live
+    from: pre
+  - trigger: state
+    entity_id:
+    - sensor.f1_track_status
+    to: SC
+    id: safety car
+  - trigger: state
+    entity_id:
+    - sensor.f1_track_status
+    id: red
+    to: RED
+  - trigger: state
+    entity_id:
+    - sensor.f1_track_status
+    id: green
+    to: CLEAR
+  - trigger: state
+    entity_id:
+    - sensor.f1_track_status
+    to: YELLOW
+    id: yellow
+  - trigger: state
+    entity_id:
+    - sensor.f1_session_status
+    from: suspended
+    to: live
+    id: Resumed
+  - trigger: state
+    entity_id:
+    - sensor.f1_session_status
+    to: finalised
+    id: finalised
+  conditions:
+  - condition: state
+    entity_id: input_boolean.f1_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - alias: Track Status
+    choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Live
+        - Quali Live
+      sequence:
+      - parallel:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            rgb_color:
+            - 255
+            - 100
+            - 17
+            brightness_pct: 100
+          target:
+            entity_id:
+            - light.room
+            - light.emilio_bed
+            device_id: cc884d6df64d41f58503c01ee1be7826
+        - action: media_player.play_media
+          target:
+            entity_id: media_player.home_assistant_tablet
+          data:
+            media:
+              media_content_id: http://10.0.0.61:8123/local/sounds/its-lights-out-and-away-we-go-made-with-Voicemod.mp3
+              media_content_type: audio/mpeg
+              metadata: {}
+          alias: Lights out tablet
+      alias: Live
+    - conditions:
+      - condition: trigger
+        id:
+        - finished
+      sequence:
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: sensor.f1
+            attribute: quarter
+            state: Qual
+          sequence:
+          - alias: Lights out speak
+            action: notify.alexa_media_emilio_s_echo_show_5
+            metadata: {}
+            data:
+              message: Great qualifying quarter!
+        - conditions:
+          - condition: state
+            entity_id: sensor.f1
+            attribute: quarter
+            state: Race
+          sequence:
+          - alias: End Speak
+            action: notify.alexa_media_emilio_s_echo_show_5
+            metadata: {}
+            data:
+              message: Chequered flag, and what a session we’ve had today!
+          - action: input_boolean.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id:
+              - input_boolean.f1_mode
+          - stop: ''
+      alias: Finished
+    - conditions:
+      - condition: trigger
+        id:
+        - finalised
+      sequence:
+      - if:
+        - condition: state
+          entity_id: input_boolean.night_mode
+          state: 'on'
+        then:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            brightness_pct: 50
+            rgb_color:
+            - 255
+            - 255
+            - 255
+          target:
+            entity_id:
+            - light.bedroom_lights
+        else:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            brightness_pct: 100
+            rgb_color:
+            - 255
+            - 255
+            - 255
+          target:
+            entity_id:
+            - light.desk_light
+            - light.room
+      alias: Ended
+    - conditions:
+      - condition: trigger
+        id:
+        - safety car
+      sequence:
+      - parallel:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            effect: Care-B
+          target:
+            device_id:
+            - cc884d6df64d41f58503c01ee1be7826
+            - d0a2e029fb6b141d1fb963dce658178a
+        - action: light.turn_on
+          metadata: {}
+          data:
+            effect: Care
+          target:
+            entity_id: light.room
+        alias: Care
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.home_assistant_tablet
+        data:
+          media:
+            media_content_id: http://10.0.0.61:8123/local/sounds/its-broken-lando-norris.mp3
+            media_content_type: audio/mpeg
+            metadata: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 171
+          - 1
+        target:
+          entity_id:
+          - light.emilio_bed
+          - light.desk_light
+          - light.room
+      alias: Safety Car
+    - conditions:
+      - condition: trigger
+        id:
+        - vsc
+      sequence:
+      - action: scene.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: scene.govee_to_mqtt_one_click_f1_f1_yellow
+      - alias: Lights out speak
+        action: notify.alexa_media_emilio_s_echo_show_5
+        metadata: {}
+        data:
+          message: Virtual Safety Car Active!
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 10
+          milliseconds: 0
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 171
+          - 1
+        target:
+          entity_id:
+          - light.emilio_bed
+          - light.desk_light
+          - light.room
+      alias: VSC
+    - conditions:
+      - condition: trigger
+        id:
+        - red
+      sequence:
+      - action: scene.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: scene.govee_to_mqtt_one_click_f1_f1_red
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.home_assistant_tablet
+        data:
+          media:
+            media_content_id: http://10.0.0.61:8123/local/sounds/george-russel-red-flag-made-with-Voicemod.mp3
+            media_content_type: audio/mpeg
+            metadata: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 0
+          - 2
+        target:
+          entity_id:
+          - light.emilio_bed
+          - light.desk_light
+          - light.room
+      alias: Red Flag
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: trigger
+          id:
+          - yellow
+        - condition: state
+          entity_id: sensor.f1_session_status
+          state: live
+      sequence:
+      - action: scene.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - scene.govee_to_mqtt_one_click_f1_f1_yellow
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.home_assistant_tablet
+        data:
+          media:
+            media_content_id: http://10.0.0.61:8123/local/sounds/its-broken-lando-norris.mp3
+            media_content_type: audio/mpeg
+            metadata: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 171
+          - 1
+        target:
+          entity_id:
+          - light.emilio_bed
+          - light.desk_light
+          - light.room
+      alias: Yellow Flag
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: sensor.f1_session_status
+          state: live
+        - condition: trigger
+          id:
+          - green
+          - Resumed
+      sequence:
+      - action: scene.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: scene.govee_to_mqtt_one_click_f1_f1_green
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.home_assistant_tablet
+        data:
+          media:
+            media_content_id: http://10.0.0.61:8123/local/sounds/200785-7516fc78-b274-4f87-89cf-0f6a8208eaa1.mp3
+            media_content_type: audio/mpeg
+            metadata: {}
+      alias: Green Flag
+  - alias: 'F1 Lights Mode '
+    choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: sensor.f1_session_status
+          state: live
+        - condition: trigger
+          id:
+          - Live
+          - green
+          - Quali Live
+          - Resumed
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - alias: Lights F1 Mode
+        parallel:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            effect: Dreamland-F
+          target:
+            entity_id:
+            - light.desk_light
+            - light.emilio_bed
+        - action: light.turn_on
+          metadata: {}
+          data:
+            effect: Universe
+          target:
+            device_id:
+            - e7e7e62b09d6aa6e68971125ceb626fd
+  mode: restart
+- id: '1756531044431'
+  alias: AI Auto Sleep - Bedroom Camera 1
+  description: Detects if Emilio is about to sleep in the bedroom and initiates the
+    sleep routine.
+  triggers:
+  - event_type: ios.action_fired
+    event_data:
+      actionID: 7E3C12BD-6821-448E-8800-1271A358A5F7
+    trigger: event
+    id: tag
+    enabled: false
+  - domain: mqtt
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    type: action
+    subtype: 2_short_release
+    trigger: device
+    id: Full
+  - domain: mqtt
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    type: action
+    subtype: 2_long_release
+    trigger: device
+    id: Direct
+  - trigger: template
+    value_template: "{{ as_datetime(state_attr('sensor.work_sleep_time','iso')).strftime('%Y-%m-%d
+      %H:%M') <=\n   now().strftime('%Y-%m-%d %H:%M') }}"
+    id: sleep
+  - trigger: template
+    value_template: '{{ as_datetime(state_attr(''sensor.work_sleep_time'',''iso'')).strftime(''%Y-%m-%d
+      %H:%M'') ==(as_datetime(state_attr(''sensor.work_sleep_time'',''iso'')) - timedelta(minutes=15)).strftime(''%Y-%m-%d
+      %H:%M'') }}
+
+      '
+    id: pre sleep
+  conditions:
+  - alias: not match powerstate PC
+    condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.emilios_pc_pcpowerstate
+      state: PowerOn
+    enabled: false
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.night_mode
+    state: 'on'
+    enabled: true
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  - condition: time
+    after: '22:30:00'
+    before: 03:30:00
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.wake_active
+      - input_boolean.wake_phase_1
+      - input_boolean.emilio_auto_room
+      - input_boolean.f1_mode
+      - input_boolean.barca_mode
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Full
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.sleep_mode
+      - action: script.ai_sleep_a1
+        metadata: {}
+        data: {}
+      - action: timer.start
+        metadata: {}
+        data:
+          duration: 00:05:00
+        target:
+          entity_id: timer.sleep_1
+    - conditions:
+      - condition: trigger
+        id:
+        - Direct
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.sleep_mode
+      - action: script.ai_sleep_a1
+        metadata: {}
+        data: {}
+      - action: timer.start
+        metadata: {}
+        data:
+          duration: 01:00:00
+        target:
+          entity_id: timer.sleep_1
+        enabled: true
+    - conditions:
+      - condition: trigger
+        id:
+        - sleep
+      - condition: time
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+      sequence:
+      - action: notify.alexa_media_emilio_s_echo_show_5
+        metadata: {}
+        data:
+          message: It's time to sleep for {{ states('input_number.sleep_duration')
+            }}.
+    - conditions:
+      - condition: trigger
+        id:
+        - pre sleep
+      - condition: time
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+      sequence:
+      - action: notify.alexa_media_emilio_s_echo_show_5
+        metadata: {}
+        data:
+          message: 15 minutes left to sleep for {{ states('input_number.sleep_duration')
+            }}.
+  - device_id: c37fc1a77194394cfb544b2000da0c46
+    domain: select
+    entity_id: 9e18334a2d42dc9c0bf3a413811d41d4
+    type: select_option
+    option: Wake Mode
+  mode: restart
+- id: '1756673520630'
+  alias: Toggle Night Mode on Sun Position
+  description: Turns on the night mode input boolean when the sun sets.
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: 0
+  - trigger: sun
+    event: sunrise
+    offset: 0
+  conditions: []
+  actions:
+  - action: input_boolean.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.night_mode
+  mode: single
+- id: '1756673818464'
+  alias: Motion Sensor Battery Low Notification
+  description: Notifies when a motion sensor's battery is low and adds a task to replace
+    it.
+  triggers:
+  - type: battery_level
+    device_id: 3efb9f121f4552d0f8d96e45557db9ea
+    entity_id: 085bb744470702f7dece63ea497b727f
+    domain: sensor
+    trigger: device
+    below: 10
+  - type: battery_level
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    entity_id: 016bfafe72c9c7ee8ae67edef48c4367
+    domain: sensor
+    trigger: device
+    below: 10
+  conditions: []
+  actions:
+  - action: notify.alexa_media_emilio_s_echo_show_5
+    metadata: {}
+    data:
+      message: Replace Room Motion Sensor Battery
+  - action: todo.add_item
+    metadata: {}
+    data:
+      item: Replace Motion Sensor Battery
+    target:
+      entity_id: todo.important_tasks
+  mode: single
+- id: '1756791244560'
+  alias: Play Modes Automatic
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: fp1_seconds_left
+    enabled: false
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: fp2_seconds_left
+    enabled: false
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: fp3_seconds_left
+    enabled: false
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: sprint_quali_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: sprint_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: quali_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.f1_sessions
+    below: 900
+    above: 301
+    attribute: race_seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.barca_cl_time_left
+    below: 900
+    above: 301
+    attribute: seconds_left
+  - trigger: numeric_state
+    entity_id:
+    - sensor.barca_laliga_time_left
+    below: 900
+    above: 301
+    attribute: seconds_left
+  conditions:
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  actions:
+  - variables:
+      race_left: '{{ state_attr(''sensor.f1_sessions'',''race_seconds_left'')|int(999999)
+        }}'
+      sprint_left: '{{ state_attr(''sensor.f1_sessions'',''sprint_seconds_left'')|int(999999)
+        }}'
+      qual_left: '{{ state_attr(''sensor.f1_sessions'',''quali_seconds_left'')|int(999999)
+        }}'
+      cl_left: '{{ state_attr(''sensor.barca_cl_time_left'', ''seconds_left'')|int(999999)
+        }}'
+      liga_left: '{{ state_attr(''sensor.barca_laliga_time_left'', ''seconds_left'')|int(999999)
+        }}'
+      race_active: '{{ 1 <= race_left <= 900 }}'
+      sprint_active: '{{ 1 <= sprint_left <= 900 }}'
+      quali_active: '{{ 1 <= qual_left <= 900 }}'
+      cl_active: '{{ 1 <= cl_left <= 900 }}'
+      liga_active: '{{ 1 <= liga_left <= 900 }}'
+      barca_opp: '{{ state_attr(''sensor.barca_liga'',''opponent_long_name'')|default('''',
+        true)|lower }}'
+      is_clasico: '{{ ''real madrid'' in (barca_opp | default('''', true) | lower)
+        }}'
+      current_mode: "{% if is_state('input_boolean.f1_mode','on') %}F1{% elif\n   is_state('input_boolean.barca_mode','on')
+        %}Barca{% else %}None{% endif %}"
+      desired_mode: "{% if cl_active or (liga_active and is_clasico) %}\n  Barca\n{%
+        elif race_active %}\n  F1\n{% elif liga_active %}\n  Barca\n{% elif sprint_active
+        or quali_active %}\n  F1\n{% else %}\n  None\n{% endif %}"
+  - alias: Mode Selector
+    choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ current_mode is none and desired_mode is not none }}'
+      sequence:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ desired_mode == ''F1'' }}'
+          sequence:
+          - target:
+              entity_id: input_boolean.f1_mode
+            action: input_boolean.turn_on
+            data: {}
+          - target:
+              entity_id: input_boolean.barca_mode
+            action: input_boolean.turn_off
+            data: {}
+          alias: F1
+        - conditions:
+          - condition: template
+            value_template: '{{ desired_mode == ''Barca'' }}'
+          sequence:
+          - target:
+              entity_id: input_boolean.barca_mode
+            action: input_boolean.turn_on
+            data: {}
+          - target:
+              entity_id: input_boolean.f1_mode
+            action: input_boolean.turn_off
+            data: {}
+          alias: Barca
+        alias: Regular F1 or Barca
+      alias: No Overlap
+    - conditions:
+      - condition: template
+        value_template: '{{ desired_mode is not none and desired_mode != current_mode
+          }}'
+      sequence:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ desired_mode == ''Barca'' }}'
+          sequence:
+          - action: input_boolean.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.barca_mode
+          - action: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id: input_boolean.f1_mode
+          alias: Barca
+        - conditions:
+          - condition: template
+            value_template: '{{ desired_mode == ''F1'' }}'
+          sequence:
+          - target:
+              entity_id: input_boolean.f1_mode
+            action: input_boolean.turn_on
+            data: {}
+          - target:
+              entity_id: input_boolean.barca_mode
+            action: input_boolean.turn_off
+            data: {}
+          alias: F1
+      alias: OverLap
+  - if:
+    - condition: state
+      entity_id: input_boolean.sleep_mode
+      state: 'on'
+    then:
+    - action: media_player.volume_set
+      metadata: {}
+      data:
+        volume_level: 0.3
+      target:
+        entity_id: media_player.home_assistant_tablet
+    - action: script.jarvis_high_tts
+      metadata: {}
+      data:
+        text: Wake up to watch {{desired_mode}} in less than 15 minutes.
+    - wait_template: '{{ states(''media_player.home_assistant_tablet'') not in [''playing'',''buffering'']
+        }}'
+      timeout: 00:00:30
+      continue_on_timeout: true
+    - action: media_player.volume_set
+      metadata: {}
+      data:
+        volume_level: 1
+      target:
+        entity_id: media_player.home_assistant_tablet
+  mode: single
+- id: '1756879768841'
+  alias: Watching Mode
+  description: Turns on Govee lights to default movie mode when Netflix is launched
+    on the bedroom Fire TV.
+  triggers:
+  - device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    domain: media_player
+    entity_id: 440cfca167fa701de7d184e3f3060b77
+    type: playing
+    trigger: device
+    id: play
+  - device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    domain: media_player
+    entity_id: 440cfca167fa701de7d184e3f3060b77
+    type: paused
+    trigger: device
+    id: pause
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: media_player.bedroom_fire_tv
+      attribute: source
+      state: Netflix
+    - condition: state
+      entity_id: media_player.bedroom_fire_tv
+      attribute: source
+      state: com.teamsmart.videomanager.tv
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - play
+      sequence:
+      - action: media_player.media_pause
+        metadata: {}
+        data: {}
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+      - action: light.turn_off
+        target:
+          entity_id:
+          - light.cabinet
+          - light.emilio_bed
+        data: {}
+      - action: light.turn_on
+        metadata: {}
+        data:
+          effect: Dreamland-F
+        target:
+          entity_id:
+          - light.desk_light
+      - action: light.turn_on
+        metadata: {}
+        data:
+          effect: Sleep
+        target:
+          entity_id: light.room
+    - conditions:
+      - condition: trigger
+        id:
+        - pause
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          effect: Reading
+        target:
+          entity_id:
+          - light.room
+          - light.desk_light
+      - if:
+        - condition: numeric_state
+          entity_id: media_player.emilio_s_echo_show_5
+          attribute: volume_level
+          above: 0.2
+        then:
+        - action: media_player.volume_set
+          metadata: {}
+          data:
+            volume_level: 0.2
+          target:
+            entity_id: media_player.emilio_s_echo_show_5
+      - action: media_player.media_play
+        metadata: {}
+        data: {}
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+      - if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: media_player.spotify_emilio_maalouf
+            state: playing
+        then:
+        - action: media_player.select_source
+          metadata: {}
+          data:
+            source: Emilio’s Echo Show 5
+          target:
+            entity_id: media_player.spotify_emilio_maalouf
+        - action: media_player.play_media
+          metadata: {}
+          data:
+            media:
+              media_content_id: spotify:playlist:6IKQrtMc4c00YzONcUt7QH
+              media_content_type: spotify://playlist
+              metadata:
+                title: "Chill  Vibes 2025 \U0001F319"
+                thumbnail: https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da842128d1e7b21f4f57fa1d0174
+                media_class: playlist
+                children_media_class: track
+                navigateIds:
+                - {}
+                - media_content_type: spotify://current_user_playlists
+                  media_content_id: current_user_playlists
+                browse_entity_id: media_player.spotify_emilio_maalouf
+          target:
+            entity_id: media_player.spotify_emilio_maalouf
+  mode: single
+- id: '1756885536176'
+  alias: Bedroom Fire TV YouTube Off
+  description: Turns on bedroom lights to white when YouTube is launched on the Fire
+    TV.
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.bedroom_fire_tv
+    attribute: source
+    from: com.teamsmart.videomanager.tv
+    id: youtube
+  - trigger: state
+    entity_id:
+    - media_player.bedroom_fire_tv
+    attribute: source
+    from: Netflix
+    id: neflix
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      rgb_color:
+      - 255
+      - 255
+      - 255
+    target:
+      entity_id: light.bedroom_lights
+  mode: single
+- id: '1757102477132'
+  alias: Boolean Modes Off
+  description: Turns off F1 mode when an F1 session has ended.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.f1_session_status
+    to: ended
+    id: f1
+  - trigger: state
+    entity_id:
+    - sensor.barca_cl
+    - sensor.barca_liga
+    to: POST
+    id: barca
+  - device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    domain: media_player
+    entity_id: 440cfca167fa701de7d184e3f3060b77
+    type: turned_off
+    trigger: device
+    id: tv off
+  - type: turned_off
+    device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    entity_id: de9e924bf5026009c4c050d06d039ebd
+    domain: remote
+    trigger: device
+    id: tv off
+  - trigger: state
+    entity_id:
+    - media_player.bedroom_fire_tv
+    from: 'off'
+    id: tv on
+  - domain: mqtt
+    device_id: e7d3ef1935b02135d7dd5811ac625d6e
+    type: action
+    subtype: 1_initial_press
+    trigger: device
+    id: sleep off
+    enabled: false
+  - type: motion
+    device_id: c37fc1a77194394cfb544b2000da0c46
+    entity_id: 5ed26531bd460db1b9569fbae90b65f9
+    domain: binary_sensor
+    trigger: device
+    id: cam sleep off
+    enabled: false
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.emilio_auto_room
+      state: 'off'
+    then:
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.emilio_auto_room
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - f1
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.f1_mode
+    - conditions:
+      - condition: trigger
+        id:
+        - barca
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.barca_mode
+      - variables:
+          match_type: '{{ trigger.id }}'
+          opp: '{{ trigger.to_state.attributes.opponent_name | default(''Opponent'',
+            true) }}'
+          us: '{{ trigger.to_state.attributes.team_score | int(0) }}'
+          them: '{{ trigger.to_state.attributes.opponent_score | int(0) }}'
+      - action: script.barca_full_time
+        data:
+          match_type: '{{ match_type }}'
+          opp: '{{ opp }}'
+          us: '{{ us }}'
+          them: '{{ them }}'
+    - conditions:
+      - condition: trigger
+        id:
+        - tv off
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.tv_mode
+    - conditions:
+      - condition: trigger
+        id:
+        - tv on
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.tv_mode
+    - conditions:
+      - condition: trigger
+        id:
+        - sleep off
+        - cam sleep off
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'on'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.sleep_mode
+        enabled: false
+  mode: single
+- id: '1757102650148'
+  alias: Barca Post Mode Off
+  description: Turns off the Barca mode when the match ends
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.barca_cl
+    - sensor.barca_liga
+    to: POST
+  conditions:
+  - condition: state
+    entity_id: input_boolean.barca_mode
+    state: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.barca_mode
+  mode: single
+- id: '1757440450837'
+  alias: Car Activity Deactivated Notification
+  description: Notifies Emilio when car activity is deactivated.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.emilios_16_pro_activity
+    from: Automotive
+  conditions: []
+  actions:
+  - action: notify.mobile_app_emilios_16_pro
+    metadata: {}
+    data:
+      message: Automotive deactivated
+  mode: single
+- id: '1757440486994'
+  alias: Car Activity actuvated Notification
+  description: Notifies Emilio when car activity is activated.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.emilios_16_pro_activity
+    from:
+    to: Automotive
+    enabled: false
+  - trigger: state
+    entity_id:
+    - sensor.emilios_16_pro_audio_output
+    to: CarPlay
+  conditions: []
+  actions:
+  - action: media_player.play_media
+    metadata: {}
+    data:
+      media:
+        media_content_id: spotify:playlist:5IgMN3bZH4eHR8n2jZoCHr
+        media_content_type: spotify://playlist
+        metadata:
+          title: "Good Vibes 2025 \U0001F31E Summer Playlist"
+          thumbnail: https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da846e040fc9d4f5e9855f9ac2c6
+          media_class: playlist
+          children_media_class: track
+          navigateIds:
+          - {}
+          - media_content_type: spotify://current_user_playlists
+            media_content_id: current_user_playlists
+          browse_entity_id: media_player.spotify_emilio_maalouf
+    target:
+      entity_id: media_player.spotify_emilio_maalouf
+  - action: notify.mobile_app_emilios_16_pro
+    metadata: {}
+    data:
+      message: Automotive activated
+  mode: single
+- id: '1757689856353'
+  alias: Printer Power On Notification
+  description: Notifies the user via TTS when the printer powers on.
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.a1_switch
+    to: 'on'
+    from: 'off'
+  conditions: []
+  actions:
+  - device_id: c37fc1a77194394cfb544b2000da0c46
+    domain: select
+    entity_id: 9e18334a2d42dc9c0bf3a413811d41d4
+    type: select_option
+    option: Printer
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.work
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.home
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.sleep_mode
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.in_meeting
+        state: 'off'
+    then:
+    - action: tts.speak
+      metadata: {}
+      data:
+        cache: true
+        media_player_entity_id: media_player.home_assistant_tablet
+        options:
+          voice: jarvis-medium
+        message: Excellent choice sir. The printer is powering up!
+      target:
+        entity_id: tts.piper
+  mode: single
+- id: '1757738328055'
+  alias: Car Proximity Alert
+  description: Triggers a script when the Elantra phone proximity sensor indicates
+    the car is approaching and within a close range, provided the home input boolean
+    is off.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.proximity_phone_elantra
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'off'
+  - condition: state
+    entity_id: sensor.proximity_phone_elantra
+    attribute: dir_of_travel
+    state: towards
+  - condition: numeric_state
+    entity_id: sensor.proximity_phone_elantra
+    below: 0.1
+  - condition: device
+    device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: is_not_home
+  - type: is_off
+    condition: device
+    device_id: c2ab6cc9827a1203b4c35db6ee2b1112
+    entity_id: ffa02544c7f6ae5c67fdbb2c44a684dd
+    domain: binary_sensor
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.emilios_16_pro_activity
+      state: Automotive
+    alias: Not Automotive
+  - alias: Not at the GYM or Work
+    condition: not
+    conditions:
+    - condition: or
+      conditions:
+      - condition: zone
+        entity_id: device_tracker.emilios_16_pro
+        zone: zone.gym
+      - condition: zone
+        entity_id: device_tracker.emilios_16_pro
+        zone: zone.boston_scientific
+  actions:
+  - action: notify.mobile_app_emilios_16_pro
+    metadata: {}
+    data:
+      message: Car start get close
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.start_car_climate_control
+    enabled: true
+  mode: single
+- id: '1758084349485'
+  alias: Turn Off Remote
+  description: Turns off the remote when it is detected to be turned off.
+  triggers:
+  - device_id: 8b882d76a068560ed419daeb6c22f7be
+    domain: media_player
+    entity_id: 9dd1aba44294ece804df32cb5e7649c8
+    type: turned_off
+    trigger: device
+  - type: turned_off
+    device_id: 8b882d76a068560ed419daeb6c22f7be
+    entity_id: b859344e35867bbadacf8c662b36cb57
+    domain: remote
+    trigger: device
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    entity_id: de9e924bf5026009c4c050d06d039ebd
+    domain: remote
+  mode: single
+- id: '1758084385187'
+  alias: Turn on remote when it is detected to be turned off
+  description: Turns off the remote when it is detected to be turned off.
+  triggers:
+  - type: turned_on
+    device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    entity_id: de9e924bf5026009c4c050d06d039ebd
+    domain: remote
+    trigger: device
+  - device_id: ad7c124eaa120682457a6b8cd8f27a3b
+    domain: media_player
+    entity_id: 440cfca167fa701de7d184e3f3060b77
+    type: turned_on
+    trigger: device
+  conditions: []
+  actions:
+  - type: turn_on
+    device_id: 8b882d76a068560ed419daeb6c22f7be
+    entity_id: b859344e35867bbadacf8c662b36cb57
+    domain: remote
+  mode: single
+- id: '1758152553758'
+  alias: Kitchen Light On Detect
+  description: Turns on a light with 40% brightness between 1 AM and 6:30 AM, otherwise
+    turns it on at 100% brightness.
+  triggers:
+  - type: occupied
+    device_id: 4457fc42c722d792879f9899dca3273c
+    entity_id: ca01f20493715584c537507d7a908fd1
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: device
+    type: is_off
+    device_id: 2417345732ee579088c900d8268ded4f
+    entity_id: 25bf7877181b68e1b0984607f3f32bf7
+    domain: light
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.wiz_tunable_white_6b88ee
+  mode: single
+- id: '1758152880899'
+  alias: Kitchen Bulb Off
+  description: Turns light off
+  triggers:
+  - type: not_occupied
+    device_id: 4457fc42c722d792879f9899dca3273c
+    entity_id: ca01f20493715584c537507d7a908fd1
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    id: Day
+  - type: not_occupied
+    device_id: 4457fc42c722d792879f9899dca3273c
+    entity_id: ca01f20493715584c537507d7a908fd1
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    id: Night
+  conditions:
+  - condition: device
+    type: is_on
+    device_id: 2417345732ee579088c900d8268ded4f
+    entity_id: 25bf7877181b68e1b0984607f3f32bf7
+    domain: light
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Night
+        - Day
+      - condition: state
+        entity_id: input_boolean.night_mode
+        state: 'off'
+      sequence: []
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.night_mode
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.wiz_tunable_white_6b88ee
+  mode: single
+- id: '1758155218338'
+  alias: Overheat Alert
+  description: Turns on a smart plug when the temperature exceeds 25 degrees Celsius
+    and the device is off.
+  triggers:
+  - type: temperature
+    device_id: 3efb9f121f4552d0f8d96e45557db9ea
+    entity_id: 4ea8d7d2030879af7d31ab0489e542fb
+    domain: sensor
+    trigger: device
+    above: 26
+  conditions:
+  - condition: device
+    type: is_off
+    device_id: 957d3c2ba282b97da2910a9111915a20
+    entity_id: de6ccfd1a9cff52865fe6806f3891469
+    domain: switch
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.smart_plug
+  mode: single
+- id: '1758225648168'
+  alias: Barca Half Time TV Volume Adjustment
+  description: Adjusts the bedroom TV volume based on whether it's half-time in a
+    Barca match (Champions League or La Liga).
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.barca_cl
+    attribute: clock
+    to: HT
+    id: Half On
+  - trigger: state
+    entity_id:
+    - sensor.barca_liga
+    attribute: clock
+    to: HT
+    id: Half On
+  - trigger: state
+    entity_id:
+    - sensor.barca_liga
+    from: HT
+    attribute: clock
+    id: Half Off
+  - trigger: state
+    entity_id:
+    - sensor.barca_cl
+    from: HT
+    attribute: clock
+    id: Half Off
+  conditions:
+  - condition: state
+    entity_id: input_boolean.barca_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Half On
+      sequence:
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.2
+        target:
+          entity_id: media_player.bedroom_tv
+    - conditions:
+      - condition: trigger
+        id:
+        - Half Off
+      sequence:
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.4
+        target:
+          entity_id: media_player.bedroom_tv
+  mode: single
+- id: '1758441035026'
+  alias: Filament Low Warning
+  description: Notifies the user when any of the printer's filament reserves are running
+    low.
+  triggers:
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: d9019447668db49c0673706c34ab3699
+    domain: sensor
+    trigger: device
+    below: 100
+    id: TPU Black
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: c27362cddd8e76aa7f2ed2924056dbd0
+    domain: sensor
+    trigger: device
+    below: 100
+    id: Silk Blue/Red
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: c4efaa49f2bd5c8cf280e5fa58007ba6
+    domain: sensor
+    trigger: device
+    below: 100
+    id: Red PLA
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: 5707b80da915aa79689b7ab541b735b0
+    domain: sensor
+    trigger: device
+    below: 100
+    id: Gold PLA
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: be1c032d6ff0d1464c4a56d1090a64ba
+    domain: sensor
+    trigger: device
+    below: 100
+    id: Black PLA
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: 76a497c35a92f9d68540385f72288310
+    domain: sensor
+    trigger: device
+    below: 100
+    id: White PLA
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: bceab827db3a6f88d1df03036e338e82
+    domain: sensor
+    trigger: device
+    below: 100
+    id: Blue PLA
+  - type: weight
+    device_id: e41e66fc612484f7ef7f0e786dbbbc1b
+    entity_id: 17fc930b11a6614bafef7ea7a1bf209b
+    domain: sensor
+    trigger: device
+    below: 100
+    id: Black PETG
+  conditions: []
+  actions:
+  - action: script.jarvis_high_tts
+    metadata: {}
+    data:
+      text: Sir, I must inform you that your {{ trigger.id}} reserve is nearly depleted.
+  mode: single
+- id: '1758451731231'
+  alias: F1 Drivers Effects
+  description: Drivers Effects
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.f1_race_leader
+    to: PIA
+    id: Piastri P1
+  - trigger: state
+    entity_id:
+    - sensor.f1_race_leader
+    to: NOR
+    id: Norris P1
+  conditions:
+  - condition: state
+    entity_id: input_boolean.f1_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.work
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Norris P1
+      sequence:
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.home_assistant_tablet
+        data:
+          media:
+            media_content_id: http://10.0.0.61:8123/local/sounds/i-m-moving-up-and-down-side-to-side-like-a-roller-coaster.mp3
+            media_content_type: audio/mpeg
+            metadata: {}
+      - action: light.turn_on
+        metadata: {}
+        data:
+          effect: F1 Chequered Win
+          brightness_pct: 100
+        target:
+          entity_id: light.desk_light
+    - conditions:
+      - condition: trigger
+        id:
+        - Piastri P1
+      sequence:
+      - action: media_player.play_media
+        target:
+          entity_id: media_player.home_assistant_tablet
+        data:
+          media:
+            media_content_id: http://10.0.0.61:8123/local/sounds/fuck-yeah-boy.mp3
+            media_content_type: audio/mpeg
+            metadata: {}
+        enabled: false
+      - action: light.turn_on
+        metadata: {}
+        data:
+          effect: F1 Chequered Win
+          brightness_pct: 100
+        target:
+          entity_id: light.desk_light
+      - action: script.jarvis_high_tts
+        metadata: {}
+        data:
+          text: Lets go. Oscar Piastri in P1 baby!
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - alias: Lights F1 Mode
+    parallel:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        effect: Dreamland-F
+      target:
+        entity_id:
+        - light.desk_light
+        - light.emilio_bed
+    - action: light.turn_on
+      metadata: {}
+      data:
+        effect: Universe
+      target:
+        device_id:
+        - e7e7e62b09d6aa6e68971125ceb626fd
+  mode: restart
+- id: '1758500610938'
+  alias: Cam morning
+  description: Turns on room lights to full white when the wake phase timer finishes.
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.wake_phase_1
+    to: 'on'
+    id: cam
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - wait_template: '{{ is_state(''binary_sensor.room_sensor_occupancy'',''on'')}}'
+    continue_on_timeout: true
+    timeout: 00:10:00
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.wake_phase_1
+  - action: calendar.get_events
+    metadata: {}
+    data:
+      duration:
+        hours: 13
+        minutes: 0
+        seconds: 0
+    target:
+      entity_id: calendar.todoist_2
+    response_variable: todoist
+  - action: google_generative_ai_conversation.generate_content
+    metadata: {}
+    data:
+      prompt: "You are J.A.R.V.I.S. from Marvel’s Iron Man films, Tony Stark’s sophisticated
+        AI assistant.\nYour style is elegant, witty, precise, and slightly playful.
+        You flatter the user, provide information with charm, maintain a cinematic
+        tone, and keep sentences concise with smooth flow.\n\nTask\nGenerate a short,
+        concise morning briefing for Emilio as he returns to the room. Remind him
+        of the weather only if it is bad. Repeat any negative or cautionary items
+        from earlier such as low car fuel, snow, or a long commute. Omit topics that
+        are not applicable.\n\nTone Rules\n- Structure the response like J.A.R.V.I.S.
+        in the films.\n- Mix formality with subtle humor and admiration.\n- Avoid
+        sounding like a plain announcer.\n- Keep it cinematic.\n- No code. No raw
+        sensor names. Do not list bare numbers without context.\n\nTime Now\n{{ now().astimezone().strftime('%a
+        %b %-d, %Y at %I:%M %p') }}\n\nContext Data for the model\nWeather summary:
+        {{ states('sensor.pirateweather_summary') }}\nFog status: {{ states('sensor.fog_status')
+        }}\nSnow today (cm): {{ states('sensor.pirateweather_current_day_snow_accumulation')
+        }}\n\nCondition: {{ states('weather.pirateweather') }}, temperature {{ states('sensor.pirateweather_temperature')
+        }} °C, wind {{ states('sensor.pirateweather_wind_speed') }} km/hr\nMinute
+        summary: {{ states('sensor.pirateweather_minutely_summary') }}\nHourly summary:
+        {{ states('sensor.pirateweather_hourly_summary') }}\n{% if states('sensor.pirateweather_precip')
+        in ['unknown','unavailable','','0','0.0'] %}\nPrecip today: none\n{% else
+        %}\nPrecip type: {{ states('sensor.pirateweather_precip') }}, probability
+        {{ states('sensor.pirateweather_precip_probability') }}%, intensity {{ states('sensor.pirateweather_precip_intensity')
+        }} mm/hr\n{% endif %}\n\nCalendar today\nImportant: '{{ state_attr('calendar.important_dates','message')
+        }}' at {{ state_attr('calendar.important_dates','start_time') }}\nMeetings:
+        '{{ state_attr('calendar.meetings','message') }}' at {{ state_attr('calendar.meetings','start_time')
+        }}\nGeneral: '{{ state_attr('calendar.general','message') }}' at {{ state_attr('calendar.general','start_time')
+        }}\n\nTodoist today\nToday count: {{ state_attr('sensor.todoist_today_count','today_count')
+        }}\nOverdue count: {{ state_attr('sensor.todoist_today_count','overdue_count')
+        }}\nProjects today: {{ state_attr('sensor.todoist_today_count','projects_today_text')
+        }}\nProjects overdue: {{ state_attr('sensor.todoist_today_count','projects_overdue_text')
+        }}\n\nCar status\nFuel level: {{ states('sensor.elantra_fuel_level') }}%\nFuel
+        range: {{ states('sensor.elantra_fuel_driving_range') | int }} km\nTire pressure
+        warning: {{ states('binary_sensor.elantra_tire_pressure_all') }}\n12V battery:
+        {{ states('sensor.elantra_car_battery_level') }}%\nLocation: {{ states('device_tracker.elantra_location')
+        }}\nDoors: {{ states('sensor.elantra_door_status') }}\nLock: {{ states('lock.elantra_door_lock')
+        }}\n\nCommute\nTarget arrival time: 07:45 am\nEstimated travel time: {{ states('sensor.work_travel_time')
+        }}\nIf travel time is unavailable, assume 30 minutes.\n\nDerived Flags for
+        the model\nBad weather: {{\n  ('storm' in states('sensor.pirateweather_summary')|lower)\n
+        \ or ('snow' in states('sensor.pirateweather_summary')|lower)\n  or ('rain'
+        in states('sensor.pirateweather_summary')|lower)\n  or (states('sensor.pirateweather_current_day_snow_accumulation')|float(0)
+        > 0)\n}}\nSnow expected: {{ (states('sensor.pirateweather_current_day_snow_accumulation')|float(0)
+        > 0) }}\nLow fuel: {{ (states('sensor.elantra_fuel_driving_range')|int(9999)
+        < 90) }}\nLong commute: {{ (states('sensor.work_travel_time')|int(30) > 28)
+        }}\n\nOutput Requirements\n- Start with a polite greeting.\n- If Bad weather
+        is true, briefly describe it with temperature and one helpful note.\n- If
+        Low fuel is true, remind him to refuel and phrase the range with context,
+        not a bare number.\n- If Snow expected is true, remind him to plan for it.\n-
+        If Long commute is true, warn him that traffic is heavy and suggest leaving
+        earlier. If travel time is unavailable, assume 30 minutes and state that assumption.\n-
+        Optionally mention the earliest calendar item if it is today and relevant.\n-
+        Keep it tight, cinematic, and helpful.\n- End with an elegant Jarvis closing.\n\nProduce
+        a single short paragraph, or two small paragraphs if needed."
+    response_variable: answer
+  - action: notify.alexa_media_emilio_s_echo_show_5
+    metadata: {}
+    data:
+      message: '{{ answer.text | replace(''\n'', '' '') | trim }}'
+    enabled: true
+  mode: single
+- id: '1758508267149'
+  alias: Pre Alarm
+  description: Triggers the alarm and starts a 3-minute grace timer for Emilio when
+    the work wake-up time is reached.
+  triggers:
+  - trigger: time
+    at:
+      entity_id: input_datetime.alarm
+      offset: -00:10:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: remote
+  conditions:
+  - condition: state
+    entity_id: input_boolean.home
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.in_meeting
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      rgb_color:
+      - 255
+      - 255
+      - 255
+      effect: sunrise
+    target:
+      entity_id:
+      - light.room
+  - action: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.2
+    target:
+      entity_id: media_player.emilio_s_echo_show_5
+  - action: media_player.select_source
+    metadata: {}
+    data:
+      source: Emilio's Echo Show 5
+    target:
+      entity_id: media_player.spotify_emilio_maalouf
+  - action: media_player.play_media
+    metadata: {}
+    data:
+      media:
+        media_content_id: spotify:album:0vXWbSuvuPkC3cxDTdaPPU
+        media_content_type: spotify://album
+        metadata:
+          title: Music to Help You Wake up (Soothing Alarm Sounds, Sounds for Alarm
+            Clock, Morning Glory)
+          thumbnail: https://i.scdn.co/image/ab67616d0000b273d57384ecf9e88507940393b2
+          media_class: album
+          children_media_class: track
+          navigateIds:
+          - {}
+          - media_content_type: spotify://current_user_saved_albums
+            media_content_id: current_user_saved_albums
+          - media_content_type: spotify://album
+            media_content_id: spotify:album:0vXWbSuvuPkC3cxDTdaPPU
+          browse_entity_id: media_player.spotify_emilio_maalouf
+    target:
+      entity_id: media_player.spotify_emilio_maalouf
+  mode: restart
+- id: '1758512303353'
+  alias: Work Status
+  description: Turns on and off work input boolean.
+  triggers:
+  - device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: enters
+    trigger: device
+    zone: zone.boston_scientific
+    id: Work in
+  - device_id: 4ecead6b4caaaf30924409bf3adf8959
+    domain: device_tracker
+    entity_id: 258a3da87915bb144f48e15aec4c295e
+    type: leaves
+    trigger: device
+    id: Work out
+    zone: zone.boston_scientific
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Work in
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.work
+    - conditions:
+      - condition: trigger
+        id:
+        - Work out
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.work
+  mode: single
+- id: '1758578432404'
+  alias: Work Status
+  description: Sets the alarm time based on whether the user is working in the office
+    or remotely.
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.work_location
+    to: 'off'
+    from: 'on'
+    id: remote
+  - trigger: state
+    entity_id:
+    - switch.work_location
+    to: 'on'
+    from: 'off'
+    id: office
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - office
+      sequence:
+      - action: input_datetime.set_datetime
+        metadata: {}
+        data:
+          time: 08:00:00
+        target:
+          entity_id: input_datetime.work_start_time
+    - conditions:
+      - condition: trigger
+        id:
+        - remote
+      sequence:
+      - action: input_datetime.set_datetime
+        metadata: {}
+        data:
+          time: 08:30:00
+        target:
+          entity_id: input_datetime.work_start_time
+  mode: single
+- id: '1758581483705'
+  alias: Night Wind Down
+  description: Engages wind-down protocol for relaxation and hydration before sleep
+    on weekdays.
+  triggers:
+  - trigger: time
+    at:
+      entity_id: input_datetime.alarm_mf
+      offset: -08:15:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: wind down
+  - trigger: time
+    at:
+      entity_id: input_datetime.alarm_mf
+      offset: -08:30:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: prepare
+  - trigger: time
+    at:
+      entity_id: input_datetime.alarm_mf
+      offset: -08:45:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: events
+    enabled: false
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - prepare
+      sequence:
+      - action: notify.alexa_media_emilio_s_echo_show_5
+        metadata: {}
+        data:
+          message: Sir, may I suggest preparing for tomorrow such as notes, attire,
+            and a clear mind will ensure a smooth start. Winding down suggested in
+            15 minutes.
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 255
+          - 255
+          - 255
+          brightness_pct: 100
+        target:
+          entity_id: light.bedroom_lights
+      - action: script.play_random_playlist
+        metadata: {}
+        data:
+          category: chill
+    - conditions:
+      - condition: trigger
+        id:
+        - wind down
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.sleep_mode
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - input_boolean.wake_active
+          - input_boolean.wake_phase_1
+          - input_boolean.emilio_auto_room
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.4
+        target:
+          entity_id: media_player.emilio_s_echo_show_5
+      - action: notify.alexa_media_emilio_s_echo_show_5
+        metadata: {}
+        data:
+          message: Sir, wind-down protocol engaged. Hydrate, prepare, relax, and let
+            me handle the ambience.
+      - action: script.ai_sleep_a1
+        metadata: {}
+        data: {}
+      - action: timer.start
+        metadata: {}
+        data:
+          duration: 00:15:00
+        target:
+          entity_id: timer.sleep_1
+    - conditions:
+      - condition: trigger
+        id:
+        - events
+      sequence:
+      - action: calendar.get_events
+        data:
+          duration:
+            hours: 12
+            minutes: 0
+            seconds: 0
+        response_variable: agenda
+        enabled: true
+        target:
+          entity_id:
+          - calendar.general
+          - calendar.automation_ideas
+          - calendar.important_dates
+          - calendar.important_tasks
+          - calendar.todoist_2
+          - calendar.work
+          - calendar.inbox
+          - calendar.meetings
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: false
+          message: "Calendar Events for Today:\n{% for event in agenda[\"calendar.your_google_calendar\"][\"events\"]
+            %}\n  {{ event.summary }}: at {{  as_timestamp(event.start) | timestamp_custom('%-I:%M
+            %p') }},\n{% endfor %}"
+          media_player_entity_id: media_player.home_assistant_tablet
+        target:
+          entity_id:
+          - tts.google_ai_tts
+        enabled: true
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: false
+          message: "To do list items for Today:\n{% for event in agenda[\"calendar.important_dates\"][\"events\"]
+            %}\n  {{ event.summary }},\n{% endfor %}      "
+          media_player_entity_id: media_player.home_assistant_tablet
+        target:
+          entity_id:
+          - tts.google_ai_tts
+        enabled: true
+    enabled: true
+  mode: single
+- id: '1758767725116'
+  alias: Set Alarm to Work Wake Time
+  description: Sets the alarm to the work wake time when the sensor state changes
+    and has an ISO value.
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.work_wake_time
+  conditions:
+  - condition: template
+    value_template: '{{ state_attr(''sensor.work_wake_time'',''iso'') not in [None,''None'']
+      }}'
+  actions:
+  - action: input_datetime.set_datetime
+    metadata: {}
+    data:
+      time: '{{ as_datetime(state_attr(''sensor.work_wake_time'',''iso'')).strftime(''%H:%M:%S'')
+        }}
+
+        '
+    target:
+      entity_id: input_datetime.alarm
+  mode: single
+- id: '1758858671323'
+  alias: Pause Music on Sleep Mode
+  description: Pauses music on Emilio's Echo Show and Spotify when sleep mode is enabled
+    and it's after 2 AM on weekdays.
+  triggers:
+  - trigger: time
+    at: 02:00:00
+    weekday:
+    - mon
+    - tue
+    - thu
+    - wed
+    - fri
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+  actions:
+  - action: media_player.media_pause
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - media_player.emilio_s_echo_show_5
+      - media_player.spotify_emilio_maalouf
+  mode: single
